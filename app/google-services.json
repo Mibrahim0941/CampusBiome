@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "459735222825",
+    "project_id": "campus-biome",
+    "storage_bucket": "campus-biome.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:459735222825:android:a5a249f66950b121d36a38",
+        "android_client_info": {
+          "package_name": "com.example.campusbiome"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBatc3bJexyfZv3JRqR7wy1ZO0MVtUgWBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
