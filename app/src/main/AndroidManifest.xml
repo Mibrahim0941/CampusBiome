@@ -28,6 +28,9 @@
             android:name=".RoleSelectionActivity"
             android:exported="false" />
         <activity
+            android:name=".Dashboard"
+            android:exported="false"/>
+        <activity
             android:name=".GettingStartedActivity"
             android:exported="true">
             <intent-filter>
