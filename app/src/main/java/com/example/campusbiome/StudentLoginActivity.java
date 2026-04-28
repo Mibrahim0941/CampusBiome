@@ -141,7 +141,7 @@ public class StudentLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, Dashboard.class);
         intent.putExtra("role", "student");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

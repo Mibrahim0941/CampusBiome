@@ -13,6 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import androidx.annotation.NonNull;
 
 public class GenericLoginActivity extends AppCompatActivity {
 
@@ -22,8 +29,9 @@ public class GenericLoginActivity extends AppCompatActivity {
     private ImageView ivBack;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase; // Realtime Database reference
 
-    private String role;
+    private String role; // The role the user IS TRYING to log into
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,8 @@ public class GenericLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_generic_login);
 
         mAuth = FirebaseAuth.getInstance();
+        // Initialize Realtime Database
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         role = getIntent().getStringExtra("role");
         if (role == null) role = "faculty";
@@ -60,16 +70,45 @@ public class GenericLoginActivity extends AppCompatActivity {
         btnLogin.setEnabled(false);
         mAuth.signInWithEmailAndPassword(email, pass)
                 .addOnSuccessListener(result -> {
-                    btnLogin.setEnabled(true);
-                    // Without Firestore, we assume anyone with a valid account
-                    // can log into the role they selected.
-                    goToDashboard();
+                    FirebaseUser user = result.getUser();
+                    if (user != null) {
+                        checkUserRole(user.getUid());
+                    }
                 })
                 .addOnFailureListener(e -> {
                     btnLogin.setEnabled(true);
                     onFailed(e.getMessage());
                 });
     }
+
+    private void checkUserRole(String uid) {
+        // Look into "Users/uid/role" in your Realtime Database
+        mDatabase.child("Users").child(uid).child("role").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                btnLogin.setEnabled(true);
+                String actualRole = snapshot.getValue(String.class);
+
+                if (actualRole != null && actualRole.equals(role)) {
+                    // Success: Role matches
+                    goToDashboard();
+                } else {
+                    // Failure: Role mismatch
+                    mAuth.signOut();
+                    Toast.makeText(GenericLoginActivity.this,
+                            "Access Denied: You are not registered as " + rolePrettyName(role),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                btnLogin.setEnabled(true);
+                onFailed(error.getMessage());
+            }
+        });
+    }
+    
 
     private void sendPasswordReset() {
         String email = etEmail.getText().toString().trim();
@@ -85,7 +124,7 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, Dashboard.class);
         intent.putExtra("role", role);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
