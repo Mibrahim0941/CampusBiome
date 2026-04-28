@@ -17,6 +17,16 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".GenericLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentLoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RoleSelectionActivity"
+            android:exported="false" />
         <activity
             android:name=".GettingStartedActivity"
             android:exported="true">

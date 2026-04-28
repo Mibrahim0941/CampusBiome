@@ -21,7 +21,7 @@ public class GettingStartedActivity extends AppCompatActivity {
 
         // Set Click Listener
         btnGetStarted.setOnClickListener(view -> {
-            Intent intent = new Intent(GettingStartedActivity.this, LoginActivity.class);
+            Intent intent = new Intent(GettingStartedActivity.this, RoleSelectionActivity.class);
             startActivity(intent);
         });
     }
