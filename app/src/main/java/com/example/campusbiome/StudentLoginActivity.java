@@ -16,6 +16,11 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class StudentLoginActivity extends AppCompatActivity {
 
@@ -26,6 +31,7 @@ public class StudentLoginActivity extends AppCompatActivity {
     private ImageView ivBack;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private boolean isLoginMode = true;
 
     @Override
@@ -34,6 +40,7 @@ public class StudentLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_student_login);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         tabLogin          = findViewById(R.id.tabLogin);
         tabSignup         = findViewById(R.id.tabSignup);
@@ -88,10 +95,34 @@ public class StudentLoginActivity extends AppCompatActivity {
 
         btnAction.setEnabled(false);
         mAuth.signInWithEmailAndPassword(email, pass)
-                .addOnSuccessListener(result -> goToDashboard())
+                .addOnSuccessListener(result -> checkRoleAndNavigate(result.getUser()))
                 .addOnFailureListener(e -> {
                     btnAction.setEnabled(true);
                     onAuthFailed(e.getMessage());
+                });
+    }
+
+    private void checkRoleAndNavigate(FirebaseUser user) {
+        if (user == null) return;
+        mDatabase.child("Users").child(user.getUid()).child("role").get()
+                .addOnSuccessListener(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        String role = dataSnapshot.getValue(String.class);
+                        if ("student".equals(role)) {
+                            goToDashboard();
+                        } else {
+                            btnAction.setEnabled(true);
+                            Toast.makeText(this, "Access denied: Not a student account", Toast.LENGTH_SHORT).show();
+                            mAuth.signOut();
+                        }
+                    } else {
+                        // Fallback if role is not set
+                        goToDashboard();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Even if database fails, we might allow entry if the auth succeeded
+                    goToDashboard();
                 });
     }
 
@@ -115,7 +146,26 @@ public class StudentLoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(result -> {
                     FirebaseUser user = result.getUser();
                     if (user != null) {
-                        // Optional: Store the Name in the Auth Profile since we aren't using Firestore
+                        saveUserToDatabase(user.getUid(), name, email);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    btnAction.setEnabled(true);
+                    onAuthFailed(e.getMessage());
+                });
+    }
+
+    private void saveUserToDatabase(String uid, String name, String email) {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("name", name);
+        userData.put("email", email);
+        userData.put("role", "student");
+
+        mDatabase.child("Users").child(uid).setValue(userData)
+                .addOnSuccessListener(aVoid -> {
+                    // Also update Auth profile name
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(name)
                                 .build();
@@ -125,7 +175,7 @@ public class StudentLoginActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     btnAction.setEnabled(true);
-                    onAuthFailed(e.getMessage());
+                    Toast.makeText(this, "Database error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -141,8 +191,7 @@ public class StudentLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
-        Intent intent = new Intent(this, Dashboard.class);
-        intent.putExtra("role", "student");
+        Intent intent = new Intent(this, StudentDashboardActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
