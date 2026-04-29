@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="12dp"
+    android:gravity="center_vertical"
+    android:background="#FFFFFF">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#C1C8C7"
+        app:strokeWidth="1dp">
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:scaleType="centerCrop"
+            android:padding="4dp"
+            app:tint="#153838" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:layout_marginStart="14dp"
+        android:fontFamily="sans-serif-bold"
+        android:text="DramaF"
+        android:textColor="#153838"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvAdmin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="Nauman Ijaz"
+        android:textColor="#414848"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="13sp"
+        android:gravity="end" />
+
+</LinearLayout>

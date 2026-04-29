@@ -118,12 +118,12 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
-        // TODO: As you build Faculty/Admin/SocietyManager dashboards,
-        //       add cases here:
-        //         case "faculty":  intent = new Intent(this, FacultyDashboardActivity.class); break;
-        //         case "admin":    intent = new Intent(this, AdminDashboardActivity.class);   break;
-        //       For now everyone lands on the generic Dashboard.
-        Intent intent = new Intent(this, Dashboard.class);
+        Intent intent;
+        if ("admin".equals(role)) {
+            intent = new Intent(this, AdminDashboardActivity.class);
+        } else {
+            intent = new Intent(this, Dashboard.class);
+        }
         intent.putExtra("role", role);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

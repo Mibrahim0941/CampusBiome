@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="12dp"
+    android:gravity="center_vertical"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:fontFamily="sans-serif-bold"
+        android:text="Name"
+        android:textColor="#153838"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/ivStatus"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginHorizontal="8dp"
+        android:src="@android:drawable/presence_online"
+        app:tint="#153838" />
+
+    <TextView
+        android:id="@+id/tvPost"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="Lecturer"
+        android:textColor="#414848"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="13sp"
+        android:gravity="end" />
+</LinearLayout>

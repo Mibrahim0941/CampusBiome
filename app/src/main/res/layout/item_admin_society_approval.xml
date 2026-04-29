@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#C1C8C7"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvSocietyName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-bold"
+            android:text="Society Name"
+            android:textColor="#191C1D"
+            android:textSize="16sp" />
+        
+        <TextView
+            android:id="@+id/tvProposedBy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proposed by: Admin Name"
+            android:textColor="#414848"
+            android:textSize="12sp"
+            android:layout_marginTop="2dp" />
+
+        <!-- Details Card (Expanded Style) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#E8F0EE"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+                
+                <TextView android:id="@+id/tvDetailName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name: Society Name" android:textSize="11sp" android:textColor="#153838" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tvDetailAdmin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Proposed Admin: Name" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="4dp" />
+                <TextView android:id="@+id/tvDetailSpace" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Requested Space: Old Cafe" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="2dp" />
+                <TextView android:id="@+id/tvDetailBudget" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Requested Budget: 50,000 Pkr" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="2dp" />
+                
+                <ImageView
+                    android:id="@+id/ivDetailLogo"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:tint="#153838" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+            <Button
+                android:id="@+id/btnAccept"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Approve"
+                android:backgroundTint="#153838"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="20dp" />
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="Decline"
+                android:backgroundTint="#BA1A1A"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="20dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

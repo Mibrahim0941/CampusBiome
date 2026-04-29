@@ -13,7 +13,14 @@ public class GettingStartedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Ensure this matches your XML file name
+
+        // AUTO-LOGIN: If user is already logged in, skip this screen
+        if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+            startActivity(new Intent(this, RoleSelectionActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_getting_started);
 
         // Initialize the button
