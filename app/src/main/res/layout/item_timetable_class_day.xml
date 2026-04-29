@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="2dp">
+
+    <!-- Left Time Block -->
+    <LinearLayout
+        android:layout_width="52dp"
+        android:layout_height="match_parent"
+        android:gravity="center|top"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingEnd="8dp">
+
+        <TextView
+            android:id="@+id/tvSideTimeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="9"
+            android:textColor="#006B5E"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSideTimeAmPm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AM"
+            android:textColor="#526966"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Right Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeColor="#E6F2ED"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvCourseTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Data Structures"
+                android:textColor="#006B5E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCourseCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="CS-301 - Lecture"
+                android:textColor="#526966"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvInstructor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Prof: Jane Doe"
+                android:textColor="#526966"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvVenue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Room: F-203"
+                android:textColor="#8F9B99"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvTimeRange"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="9:00 - 10:30 am"
+                android:textColor="#8F9B99"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

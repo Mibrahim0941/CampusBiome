@@ -255,152 +255,13 @@
                     </LinearLayout>
 
                     <!-- Event 1 -->
-                    <com.google.android.material.card.MaterialCardView
+                    <LinearLayout
+                        android:id="@+id/llEventsContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E1E3E4"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="16dp">
-
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                app:cardBackgroundColor="#F0F4F4"
-                                app:cardCornerRadius="12dp"
-                                app:cardElevation="0dp">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:orientation="vertical">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:text="22"
-                                        android:textColor="#529F93"
-                                        android:textSize="20sp" />
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:letterSpacing="0.1"
-                                        android:text="NOV"
-                                        android:textColor="#529F93"
-                                        android:textSize="10sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Annual Book Fair"
-                                    android:textColor="#1A1C1C"
-                                    android:textSize="16sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:fontFamily="sans-serif"
-                                    android:text="Literacy Society is holding a book fair! Be there. :)"
-                                    android:textColor="#526966"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Event 2 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E1E3E4"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="16dp">
-
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                app:cardBackgroundColor="#F0F4F4"
-                                app:cardCornerRadius="12dp"
-                                app:cardElevation="0dp">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center"
-                                    android:orientation="vertical">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:text="28"
-                                        android:textColor="#529F93"
-                                        android:textSize="20sp" />
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:fontFamily="sans-serif-medium"
-                                        android:letterSpacing="0.1"
-                                        android:text="NOV"
-                                        android:textColor="#529F93"
-                                        android:textSize="10sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="CS Hackathon"
-                                    android:textColor="#1A1C1C"
-                                    android:textSize="16sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:fontFamily="sans-serif"
-                                    android:text="CS Society hosting Hackathon. Registration is now open!"
-                                    android:textColor="#526966"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                        android:orientation="vertical">
+                        <!-- Events will be added here dynamically -->
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
@@ -419,7 +280,7 @@
             android:paddingHorizontal="4dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- Home (Selected) -->
+            <!-- Home -->
             <LinearLayout
                 android:id="@+id/navHome"
                 android:layout_width="0dp"
@@ -440,20 +301,23 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
+                            android:id="@+id/navHomeIcon"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@android:drawable/ic_menu_myplaces"
                             app:tint="#006B5E" />
 
                         <TextView
+                            android:id="@+id/navHomeText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="HOME"
                             android:textColor="#006B5E"
                             android:textSize="9sp" />
@@ -467,23 +331,43 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_dialog_map"
-                    app:tint="#8F9B99" />
-
-                <TextView
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/navMapCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="MAP"
-                    android:textColor="#8F9B99"
-                    android:textSize="9sp" />
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="6dp">
+
+                        <ImageView
+                            android:id="@+id/navMapIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_dialog_map"
+                            app:tint="#8F9B99" />
+
+                        <TextView
+                            android:id="@+id/navMapText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
+                            android:text="MAP"
+                            android:textColor="#8F9B99"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- Timetable -->
@@ -492,23 +376,43 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    app:tint="#8F9B99" />
-
-                <TextView
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/navTimetableCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="TIMETABLE"
-                    android:textColor="#8F9B99"
-                    android:textSize="9sp" />
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="6dp">
+
+                        <ImageView
+                            android:id="@+id/navTimetableIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_today"
+                            app:tint="#8F9B99" />
+
+                        <TextView
+                            android:id="@+id/navTimetableText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
+                            android:text="TIMETABLE"
+                            android:textColor="#8F9B99"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- Professors -->
@@ -517,23 +421,43 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    app:tint="#8F9B99" />
-
-                <TextView
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/navProfessorsCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="PROFESSORS"
-                    android:textColor="#8F9B99"
-                    android:textSize="9sp" />
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="6dp">
+
+                        <ImageView
+                            android:id="@+id/navProfessorsIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_search"
+                            app:tint="#8F9B99" />
+
+                        <TextView
+                            android:id="@+id/navProfessorsText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
+                            android:text="PROFESSORS"
+                            android:textColor="#8F9B99"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <!-- Community -->
@@ -542,23 +466,43 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:gravity="center">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_share"
-                    app:tint="#8F9B99" />
-
-                <TextView
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/navCommunityCard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="COMMUNITY"
-                    android:textColor="#8F9B99"
-                    android:textSize="9sp" />
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="4dp"
+                        android:paddingVertical="6dp">
+
+                        <ImageView
+                            android:id="@+id/navCommunityIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_share"
+                            app:tint="#8F9B99" />
+
+                        <TextView
+                            android:id="@+id/navCommunityText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
+                            android:text="COMMUNITY"
+                            android:textColor="#8F9B99"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

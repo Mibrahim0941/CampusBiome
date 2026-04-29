@@ -171,7 +171,7 @@ public class StudentLoginActivity extends AppCompatActivity {
                                 .build();
                         user.updateProfile(profileUpdates);
                     }
-                    goToDashboard();
+                    goToGettingStarted();
                 })
                 .addOnFailureListener(e -> {
                     btnAction.setEnabled(true);
@@ -192,6 +192,12 @@ public class StudentLoginActivity extends AppCompatActivity {
 
     private void goToDashboard() {
         Intent intent = new Intent(this, StudentDashboardActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToGettingStarted() {
+        Intent intent = new Intent(this, StudentGettingStartedActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
