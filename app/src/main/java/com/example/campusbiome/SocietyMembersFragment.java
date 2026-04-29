@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -36,6 +37,8 @@ public class SocietyMembersFragment extends Fragment {
 
     private DatabaseReference dbRef;
 
+    private String societyId; // 🔥 REQUIRED
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -52,7 +55,18 @@ public class SocietyMembersFragment extends Fragment {
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
-        loadRequests();
+        // 🔥 GET SOCIETY ID
+        if (getArguments() != null) {
+            societyId = getArguments().getString("societyId");
+        }
+
+        if (societyId == null) {
+            Toast.makeText(getContext(), "Society not found", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+        // Default tab
+        switchToRequests();
 
         tabRequests.setOnClickListener(v -> switchToRequests());
         tabMembers.setOnClickListener(v -> switchToMembers());
@@ -74,62 +88,72 @@ public class SocietyMembersFragment extends Fragment {
         loadMembers();
     }
 
+    // ✅ FIXED PATH
     private void loadRequests() {
-        dbRef.child("RegistrationRequests").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                requestList.clear();
+        dbRef.child("Societies")
+                .child(societyId)
+                .child("registrationRequests")
+                .addValueEventListener(new ValueEventListener() {
 
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    RegistrationRequest req = snap.getValue(RegistrationRequest.class);
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if (req != null && "pending".equalsIgnoreCase(req.getStatus())) {
-                        req.setRequestId(snap.getKey());
-                        requestList.add(req);
+                        requestList.clear();
+
+                        for (DataSnapshot snap : snapshot.getChildren()) {
+                            RegistrationRequest req = snap.getValue(RegistrationRequest.class);
+
+                            if (req != null && "pending".equalsIgnoreCase(req.getStatus())) {
+                                req.setRequestId(snap.getKey());
+                                requestList.add(req);
+                            }
+                        }
+
+                        requestAdapter.notifyDataSetChanged();
                     }
-                }
 
-                requestAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
+                    @Override public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 
+    // ✅ FIXED PATH
     private void loadMembers() {
-        dbRef.child("SocietyMembers").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                memberList.clear();
+        dbRef.child("Societies")
+                .child(societyId)
+                .child("members")
+                .addValueEventListener(new ValueEventListener() {
 
-                for (DataSnapshot snap : snapshot.getChildren()) {
-                    SocietyMember member = snap.getValue(SocietyMember.class);
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if (member != null) {
-                        // 🔥 CRITICAL FIX
-                        member.setUid(snap.getKey()); // ALWAYS set UID manually
+                        memberList.clear();
 
-                        memberList.add(member);
+                        for (DataSnapshot snap : snapshot.getChildren()) {
+                            SocietyMember member = snap.getValue(SocietyMember.class);
+
+                            if (member != null) {
+                                member.setUid(snap.getKey()); // 🔥 IMPORTANT
+                                memberList.add(member);
+                            }
+                        }
+
+                        memberAdapter.notifyDataSetChanged();
                     }
-                }
 
-                memberAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
+                    @Override public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 
+    // 🔥 FIXED APPROVE / REJECT
     private void handleRequestAction(RegistrationRequest req, boolean accepted) {
 
         String reqId = req.getRequestId();
         String uid = req.getApplicantUid();
 
+        if (reqId == null || uid == null) return;
+
         if (accepted) {
-            // Add to SocietyMembers
+
             SocietyMember member = new SocietyMember(
                     uid,
                     req.getApplicantName(),
@@ -138,12 +162,28 @@ public class SocietyMembersFragment extends Fragment {
                     "active"
             );
 
-            dbRef.child("SocietyMembers").child(uid).setValue(member);
+            // ✅ SAVE INSIDE SOCIETY
+            dbRef.child("Societies")
+                    .child(societyId)
+                    .child("members")
+                    .child(uid)
+                    .setValue(member);
 
-            dbRef.child("RegistrationRequests").child(reqId).child("status").setValue("approved");
+            dbRef.child("Societies")
+                    .child(societyId)
+                    .child("registrationRequests")
+                    .child(reqId)
+                    .child("status")
+                    .setValue("approved");
 
         } else {
-            dbRef.child("RegistrationRequests").child(reqId).child("status").setValue("rejected");
+
+            dbRef.child("Societies")
+                    .child(societyId)
+                    .child("registrationRequests")
+                    .child(reqId)
+                    .child("status")
+                    .setValue("rejected");
         }
     }
 }

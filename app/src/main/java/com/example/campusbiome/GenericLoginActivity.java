@@ -120,6 +120,7 @@ public class GenericLoginActivity extends AppCompatActivity {
     private void goToDashboard() {
         Intent intent;
         if(role.equals("society_manager")){
+
             intent = new Intent(this, SocietyDashboardActivity.class);
             intent.putExtra("role", role);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -138,7 +139,6 @@ public class GenericLoginActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
     private void onFailed(String message) {
         Toast.makeText(this, "Authentication failed: " + message, Toast.LENGTH_LONG).show();
     }
