@@ -23,6 +23,24 @@
             android:name=".SocietyDashboardActivity"
             android:exported="false" />
         <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminAddFacultyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminAddSocietyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminAddStudentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminStudentsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentGettingStartedActivity"
+            android:exported="false" />
+        <activity
             android:name=".GenericLoginActivity"
             android:exported="false" />
         <activity
