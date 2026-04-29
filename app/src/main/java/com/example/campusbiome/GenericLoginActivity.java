@@ -118,15 +118,19 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
-        Intent intent;
-        if ("admin".equals(role)) {
-            intent = new Intent(this, AdminDashboardActivity.class);
-        } else {
-            intent = new Intent(this, Dashboard.class);
+        if(role.equals("society_manager")){
+
+            Intent intent = new Intent(this, SocietyDashboardActivity.class);
+            intent.putExtra("role", role);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
-        intent.putExtra("role", role);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        else{
+            Intent intent = new Intent(this, Dashboard.class);
+            intent.putExtra("role", role);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
 
     private void onFailed(String message) {
