@@ -38,7 +38,7 @@ dependencies {
     // Firebase
     implementation libs.firebase.auth
     implementation libs.firebase.database
-
+    implementation 'com.google.firebase:firebase-database:20.3.0'
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
