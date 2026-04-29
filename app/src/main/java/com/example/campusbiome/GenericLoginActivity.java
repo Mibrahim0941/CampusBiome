@@ -121,8 +121,6 @@ public class GenericLoginActivity extends AppCompatActivity {
         Intent intent;
         if ("admin".equals(role)) {
             intent = new Intent(this, AdminDashboardActivity.class);
-        } else if ("faculty".equals(role)) {
-            intent = new Intent(this, FacultyDashboardActivity.class);
         } else {
             intent = new Intent(this, Dashboard.class);
         }
