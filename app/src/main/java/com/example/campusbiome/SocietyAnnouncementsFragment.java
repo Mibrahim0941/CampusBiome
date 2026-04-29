@@ -2,6 +2,7 @@ package com.example.campusbiome;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,25 +16,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class SocietyAnnouncementsFragment extends Fragment {
 
     private RecyclerView rv;
     private FloatingActionButton btnAdd;
+
     private List<SocietyAnnouncements> list = new ArrayList<>();
     private SocietyAnnouncementAdapter adapter;
+
     private DatabaseReference dbRef;
+
+    // 🔥 IMPORTANT: Society ID
+    private String societyId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,7 +46,23 @@ public class SocietyAnnouncementsFragment extends Fragment {
         adapter = new SocietyAnnouncementAdapter(list);
         rv.setAdapter(adapter);
 
-        dbRef = FirebaseDatabase.getInstance().getReference("Announcements");
+        // 🔥 Get societyId from bundle
+        Bundle args = getArguments();
+        if (args != null) {
+            societyId = args.getString("societyId");
+        }
+
+        // ❗ Safety check
+        if (societyId == null || societyId.isEmpty()) {
+            Toast.makeText(getContext(), "Society not found", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+        // 🔥 Correct Firebase Path
+        dbRef = FirebaseDatabase.getInstance()
+                .getReference("Societies")
+                .child(societyId)
+                .child("announcements");
 
         loadAnnouncements();
 
@@ -56,34 +71,46 @@ public class SocietyAnnouncementsFragment extends Fragment {
         return view;
     }
 
+    // 🔥 LOAD ANNOUNCEMENTS (REALTIME)
     private void loadAnnouncements() {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 list.clear();
+
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     SocietyAnnouncements a = snap.getValue(SocietyAnnouncements.class);
-                    if (a != null) list.add(a);
+
+                    if (a != null) {
+                        list.add(0, a); // newest first
+                    }
                 }
+
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(),
+                        "Error: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // 🔥 SHOW ADD ANNOUNCEMENT DIALOG
     private void showAddDialog() {
 
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_announcement, null);
+        View dialogView = LayoutInflater.from(getContext())
+                .inflate(R.layout.dialog_add_announcement, null);
 
-        EditText etTitle = view.findViewById(R.id.etTitle);
-        EditText etMessage = view.findViewById(R.id.etMessage);
-        Button btnPost = view.findViewById(R.id.btnPost);
+        EditText etTitle = dialogView.findViewById(R.id.etTitle);
+        EditText etMessage = dialogView.findViewById(R.id.etMessage);
+        Button btnPost = dialogView.findViewById(R.id.btnPost);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(view)
+                .setView(dialogView)
                 .create();
 
         btnPost.setOnClickListener(v -> {
@@ -91,25 +118,40 @@ public class SocietyAnnouncementsFragment extends Fragment {
             String title = etTitle.getText().toString().trim();
             String msg = etMessage.getText().toString().trim();
 
-            if (title.isEmpty() || msg.isEmpty()) {
+            if (TextUtils.isEmpty(title) || TextUtils.isEmpty(msg)) {
                 Toast.makeText(getContext(), "Fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            String id = dbRef.push().getKey();
-
-            String time = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                    .format(new Date());
-
-            SocietyAnnouncements a = new SocietyAnnouncements(title, msg, time);
-
-            dbRef.child(id).setValue(a)
-                    .addOnSuccessListener(unused ->
-                            Toast.makeText(getContext(), "Posted!", Toast.LENGTH_SHORT).show());
-
+            addAnnouncement(title, msg);
             dialog.dismiss();
         });
 
         dialog.show();
+    }
+
+    // 🔥 ADD ANNOUNCEMENT TO FIREBASE
+    private void addAnnouncement(String title, String msg) {
+
+        String id = dbRef.push().getKey();
+
+        if (id == null) {
+            Toast.makeText(getContext(), "Failed to generate ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                .format(new Date());
+
+        SocietyAnnouncements announcement =
+                new SocietyAnnouncements(title, msg, time);
+
+        dbRef.child(id).setValue(announcement)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(getContext(), "Posted!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(),
+                                "Failed: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
     }
 }
