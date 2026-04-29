@@ -19,7 +19,7 @@ public class RoleSelectionActivity extends AppCompatActivity {
         if (currentUser != null) {
             // TODO: redirect to appropriate dashboard based on stored role
             // For now, go to a generic MainActivity
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, RoleSelectionActivity.class));
             finish();
             return;
         }

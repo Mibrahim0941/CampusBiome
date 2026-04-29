@@ -3,6 +3,7 @@ package com.example.campusbiome;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,8 +20,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class StudentDashboardActivity extends AppCompatActivity {
 
-    private ImageView btnLogout;
+    private ImageView btnLogout, btnMenu;
     private TextView tvWelcomeUser;
+    private LinearLayout navHome, navMap, navTimetable, navProfessors, navCommunity;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
@@ -34,6 +36,37 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         btnLogout = findViewById(R.id.btnLogout);
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
+        btnMenu = findViewById(R.id.btnMenu);
+        navHome = findViewById(R.id.navHome);
+        navMap = findViewById(R.id.navMap);
+        navTimetable = findViewById(R.id.navTimetable);
+        navProfessors = findViewById(R.id.navProfessors);
+        navCommunity = findViewById(R.id.navCommunity);
+
+        btnMenu.setOnClickListener(v -> {
+            Toast.makeText(this, "Menu clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        navHome.setOnClickListener(v -> {
+            Toast.makeText(this, "Already on Home", Toast.LENGTH_SHORT).show();
+        });
+
+        navMap.setOnClickListener(v -> {
+            Toast.makeText(this, "Campus Map clicked", Toast.LENGTH_SHORT).show();
+            // startActivity(new Intent(StudentDashboardActivity.this, CampusMapActivity.class));
+        });
+
+        navTimetable.setOnClickListener(v -> {
+            Toast.makeText(this, "Timetable clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        navProfessors.setOnClickListener(v -> {
+            Toast.makeText(this, "Professors clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        navCommunity.setOnClickListener(v -> {
+            Toast.makeText(this, "Community clicked", Toast.LENGTH_SHORT).show();
+        });
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
