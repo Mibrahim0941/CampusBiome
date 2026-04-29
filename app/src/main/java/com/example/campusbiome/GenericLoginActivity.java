@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,8 +20,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import androidx.annotation.NonNull;
-
 public class GenericLoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
@@ -29,17 +28,16 @@ public class GenericLoginActivity extends AppCompatActivity {
     private ImageView ivBack;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase; // Realtime Database reference
+    private DatabaseReference mDatabase;
 
-    private String role; // The role the user IS TRYING to log into
+    private String role; // The role this login screen is for
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generic_login);
 
-        mAuth = FirebaseAuth.getInstance();
-        // Initialize Realtime Database
+        mAuth    = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         role = getIntent().getStringExtra("role");
@@ -71,9 +69,7 @@ public class GenericLoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, pass)
                 .addOnSuccessListener(result -> {
                     FirebaseUser user = result.getUser();
-                    if (user != null) {
-                        checkUserRole(user.getUid());
-                    }
+                    if (user != null) checkUserRole(user.getUid());
                 })
                 .addOnFailureListener(e -> {
                     btnLogin.setEnabled(true);
@@ -82,33 +78,31 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void checkUserRole(String uid) {
-        // Look into "Users/uid/role" in your Realtime Database
-        mDatabase.child("Users").child(uid).child("role").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                btnLogin.setEnabled(true);
-                String actualRole = snapshot.getValue(String.class);
+        mDatabase.child("Users").child(uid).child("role")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        btnLogin.setEnabled(true);
+                        String actualRole = snapshot.getValue(String.class);
 
-                if (actualRole != null && actualRole.equals(role)) {
-                    // Success: Role matches
-                    goToDashboard();
-                } else {
-                    // Failure: Role mismatch
-                    mAuth.signOut();
-                    Toast.makeText(GenericLoginActivity.this,
-                            "Access Denied: You are not registered as " + rolePrettyName(role),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
+                        if (actualRole != null && actualRole.equals(role)) {
+                            goToDashboard();
+                        } else {
+                            mAuth.signOut();
+                            Toast.makeText(GenericLoginActivity.this,
+                                    "Access Denied: You are not registered as "
+                                            + rolePrettyName(role),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                btnLogin.setEnabled(true);
-                onFailed(error.getMessage());
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        btnLogin.setEnabled(true);
+                        onFailed(error.getMessage());
+                    }
+                });
     }
-    
 
     private void sendPasswordReset() {
         String email = etEmail.getText().toString().trim();
@@ -124,6 +118,11 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void goToDashboard() {
+        // TODO: As you build Faculty/Admin/SocietyManager dashboards,
+        //       add cases here:
+        //         case "faculty":  intent = new Intent(this, FacultyDashboardActivity.class); break;
+        //         case "admin":    intent = new Intent(this, AdminDashboardActivity.class);   break;
+        //       For now everyone lands on the generic Dashboard.
         Intent intent = new Intent(this, Dashboard.class);
         intent.putExtra("role", role);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -136,10 +135,10 @@ public class GenericLoginActivity extends AppCompatActivity {
 
     private String rolePrettyName(String r) {
         switch (r) {
-            case "faculty":        return "Faculty";
-            case "admin":          return "Admin";
-            case "society_manager":return "Society Manager";
-            default:               return "User";
+            case "faculty":         return "Faculty";
+            case "admin":           return "Admin";
+            case "society_manager": return "Society Manager";
+            default:                return "User";
         }
     }
 }
