@@ -5,12 +5,10 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campusbiome.R;
@@ -21,18 +19,15 @@ import java.util.List;
 public class StudyGroupAdapter
         extends RecyclerView.Adapter<StudyGroupAdapter.GroupViewHolder> {
 
-    // ── Callback interface ──────────────────────────────────────────────────
     public interface OnGroupActionListener {
         void onActionClicked(StudyGroup group, String groupId);
     }
 
-    // ── Fields ──────────────────────────────────────────────────────────────
-    private final List<StudyGroup>        groups;
-    private final List<String>            groupIds;
-    private final List<String>            joinedIds;   // IDs the current user has joined
-    private final OnGroupActionListener   listener;
+    private final List<StudyGroup>      groups;
+    private final List<String>          groupIds;
+    private final List<String>          joinedIds;
+    private final OnGroupActionListener listener;
 
-    // ── Constructor matching StudyGroupsFragment call ───────────────────────
     public StudyGroupAdapter(List<StudyGroup>      groups,
                              List<String>          groupIds,
                              List<String>          joinedIds,
@@ -43,7 +38,6 @@ public class StudyGroupAdapter
         this.listener  = listener;
     }
 
-    // ── RecyclerView boilerplate ─────────────────────────────────────────────
     @NonNull
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -53,103 +47,72 @@ public class StudyGroupAdapter
     }
 
     @Override
-    public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull GroupViewHolder h, int position) {
         StudyGroup group   = groups.get(position);
         String     groupId = groupIds.get(position);
-        boolean    joined  = joinedIds.contains(groupId);
+        boolean    joined  = joinedIds != null && joinedIds.contains(groupId);
 
-        // Basic text
-        holder.txtName.setText(group.getName());
-        holder.txtCourse.setText(group.getCourse());
-        holder.txtMembers.setText(group.getCurrentMembers() + "/" + group.getMaxMembers() + " members");
+        h.txtName.setText(group.getName());
+        h.txtCourse.setText(group.getCourse());
+        h.txtMembers.setText(group.getCurrentMembers() + "/" + group.getMaxMembers());
 
-        if (group.getDescription() != null) {
-            holder.txtDescription.setText(group.getDescription());
-            holder.txtDescription.setVisibility(View.VISIBLE);
+        if (group.getDescription() != null && !group.getDescription().isEmpty()) {
+            h.txtDescription.setText(group.getDescription());
+            h.txtDescription.setVisibility(View.VISIBLE);
         } else {
-            holder.txtDescription.setVisibility(View.GONE);
+            h.txtDescription.setVisibility(View.GONE);
         }
 
         // Tags
-        holder.tagsContainer.removeAllViews();
-        if (group.getTags() != null) {
+        h.tagsContainer.removeAllViews();
+        if (group.getTags() != null && !group.getTags().isEmpty()) {
             for (String tag : group.getTags()) {
-                holder.tagsContainer.addView(makeTagChip(holder.itemView.getContext(), tag));
+                h.tagsContainer.addView(makeTagChip(h.itemView.getContext(), tag));
             }
-        }
-
-        // Joined badge
-        if (joined) {
-            holder.txtJoinedBadge.setVisibility(View.VISIBLE);
-            holder.btnAction.setText("View Group");
-            holder.btnAction.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            h.tagsContainer.setVisibility(View.VISIBLE);
         } else {
-            holder.txtJoinedBadge.setVisibility(View.GONE);
-            holder.btnAction.setText("Join");
-            holder.btnAction.setBackgroundTintList(null); // revert to @color/primary from XML
+            h.tagsContainer.setVisibility(View.GONE);
         }
 
-        // Click
-        holder.btnAction.setOnClickListener(v -> {
-            if (listener != null) listener.onActionClicked(group, groupId);
-        });
-
-        // Full card click also triggers action
-        holder.itemView.setOnClickListener(v -> {
+        // Whole card tap → always open details (join/leave lives inside details screen)
+        h.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onActionClicked(group, groupId);
         });
     }
 
     @Override
-    public int getItemCount() {
-        return groups.size();
-    }
+    public int getItemCount() { return groups.size(); }
 
-    // ── Tag chip helper ──────────────────────────────────────────────────────
     private TextView makeTagChip(Context ctx, String label) {
         TextView chip = new TextView(ctx);
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMarginEnd(8);
-        chip.setLayoutParams(params);
-
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        p.setMarginEnd(8);
+        chip.setLayoutParams(p);
         chip.setText(label);
         chip.setTextSize(11f);
         chip.setTextColor(Color.parseColor("#6C63FF"));
         chip.setPadding(20, 6, 20, 6);
-        chip.setBackground(makeTagBackground(ctx));
-        return chip;
-    }
-
-    private android.graphics.drawable.GradientDrawable makeTagBackground(Context ctx) {
         android.graphics.drawable.GradientDrawable bg =
                 new android.graphics.drawable.GradientDrawable();
         bg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
         bg.setCornerRadius(30f);
         bg.setColor(Color.parseColor("#1A6C63FF"));
-        return bg;
+        chip.setBackground(bg);
+        return chip;
     }
 
-    // ── ViewHolder ───────────────────────────────────────────────────────────
     static class GroupViewHolder extends RecyclerView.ViewHolder {
-
-        TextView     txtName, txtCourse, txtMembers, txtDescription, txtJoinedBadge;
+        TextView     txtName, txtCourse, txtMembers, txtDescription;
         LinearLayout tagsContainer;
-        Button       btnAction;
-
         GroupViewHolder(@NonNull View itemView) {
             super(itemView);
             txtName        = itemView.findViewById(R.id.txtGroupName);
             txtCourse      = itemView.findViewById(R.id.txtCourse);
             txtMembers     = itemView.findViewById(R.id.txtMembers);
             txtDescription = itemView.findViewById(R.id.txtDescription);
-            txtJoinedBadge = itemView.findViewById(R.id.txtJoinedBadge);
             tagsContainer  = itemView.findViewById(R.id.tagsContainer);
-            btnAction      = itemView.findViewById(R.id.btnAction);
         }
     }
 }

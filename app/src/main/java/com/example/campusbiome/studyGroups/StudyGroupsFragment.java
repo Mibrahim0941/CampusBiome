@@ -254,50 +254,20 @@ public class StudyGroupsFragment extends Fragment {
      * If not joined → join the group in Firebase.
      */
     private void onGroupActionClicked(StudyGroup group, String groupId) {
-        if (joinedIds.contains(groupId)) {
-            // Already a member → open Group Details screen (to be implemented)
-            // Uncomment and use once GroupDetailsFragment is ready:
-            // Bundle args = new Bundle();
-            // args.putString("groupId", groupId);
-            // args.putSerializable("group", group);
-            // GroupDetailsFragment detailFrag = new GroupDetailsFragment();
-            // detailFrag.setArguments(args);
-            // requireActivity().getSupportFragmentManager()
-            //         .beginTransaction()
-            //         .replace(R.id.fragment_container, detailFrag)
-            //         .addToBackStack(null)
-            //         .commit();
-            Toast.makeText(getContext(),
-                    "Opening " + group.getName() + "…", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//             Already a member → open Group Details screen (to be implemented)
+//             Uncomment and use once GroupDetailsFragment is ready:
+        Bundle args = new Bundle();
+        args.putString("groupId", groupId);
+        args.putSerializable("group", group);
+        GroupDetailsFragment detailFrag = new GroupDetailsFragment();
+        detailFrag.setArguments(args);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, detailFrag)
+                .addToBackStack(null)
+                .commit();
+        return;
 
-        // Not yet joined → join
-        joinGroup(group, groupId);
-    }
-
-    private void joinGroup(StudyGroup group, String groupId) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Toast.makeText(getContext(), "Please log in to join groups.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-
-        // 1. Record membership under Users/{uid}/joinedGroups/{groupId}
-        db.child("Users").child(user.getUid())
-                .child("joinedGroups").child(groupId)
-                .setValue(true);
-
-        // 2. Increment currentMembers in StudyGroups/{groupId}
-        db.child("StudyGroups").child(groupId).child("currentMembers")
-                .setValue(group.getCurrentMembers() + 1);
-
-        Toast.makeText(getContext(),
-                "Joined " + group.getName() + "!", Toast.LENGTH_SHORT).show();
-
-        // joinedIds will update automatically because loadData() is a live listener
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

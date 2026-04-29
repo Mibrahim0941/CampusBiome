@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+    Group Details screen.
+    Changes from previous version:
+      - layoutMemberActions: buttons are now VERTICAL (stacked), not horizontal.
+        This prevents text truncation on small screens.
+      - btnScheduleSession and btnLeaveGroup each take full width.
+      - btnJoinGroup unchanged (already full-width).
+-->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,7 +14,7 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Top App Bar -->
+    <!-- ── Top App Bar ── -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -23,6 +30,7 @@
             app:navigationIconTint="@color/white"
             app:titleTextColor="@color/white"
             android:background="@color/primary"/>
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -35,7 +43,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header Card -->
+            <!-- ── Header card: name, course, description, stats, tags ── -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -75,14 +83,13 @@
                         android:textColor="@color/text_secondary"
                         android:lineSpacingMultiplier="1.4"/>
 
-                    <!-- Stats row -->
+                    <!-- Stats row: Members | Max Capacity | Sessions -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="16dp">
 
-                        <!-- Members stat -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -106,13 +113,11 @@
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
 
-                        <!-- Divider -->
                         <View
                             android:layout_width="1dp"
                             android:layout_height="40dp"
                             android:background="@color/divider"/>
 
-                        <!-- Capacity stat -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -136,13 +141,11 @@
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
 
-                        <!-- Divider -->
                         <View
                             android:layout_width="1dp"
                             android:layout_height="40dp"
                             android:background="@color/divider"/>
 
-                        <!-- Sessions stat -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -165,6 +168,7 @@
                                 android:textSize="11sp"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
+
                     </LinearLayout>
 
                     <!-- Tags -->
@@ -178,52 +182,57 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons (for members) -->
+            <!--
+                ── Member action buttons (shown when user HAS joined) ──
+                KEY CHANGE: orientation="vertical" — buttons are stacked, not side-by-side.
+                Each button takes full width so text never truncates.
+            -->
             <LinearLayout
                 android:id="@+id/layoutMemberActions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:visibility="gone">
 
                 <Button
                     android:id="@+id/btnScheduleSession"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
                     android:text="+ Schedule Session"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:backgroundTint="@color/primary"
                     style="@style/Widget.MaterialComponents.Button"
                     app:cornerRadius="10dp"/>
 
                 <Button
                     android:id="@+id/btnLeaveGroup"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
                     android:text="Leave Group"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:backgroundTint="#FFEBEE"
                     android:textColor="#D32F2F"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     app:strokeColor="#FFCDD2"
                     app:cornerRadius="10dp"/>
+
             </LinearLayout>
 
-            <!-- Join button (for non-members) -->
+            <!--
+                ── Join button (shown when user has NOT joined) ──
+                Full-width, unchanged from before.
+            -->
             <Button
                 android:id="@+id/btnJoinGroup"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:text="Join This Group"
                 android:textSize="15sp"
                 android:backgroundTint="@color/primary"
@@ -231,7 +240,7 @@
                 app:cornerRadius="10dp"
                 android:visibility="gone"/>
 
-            <!-- Upcoming Sessions Section -->
+            <!-- ── Upcoming Sessions section ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -239,6 +248,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="12dp">
 
                 <TextView
@@ -249,9 +259,9 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"/>
+
             </LinearLayout>
 
-            <!-- Empty sessions state -->
             <TextView
                 android:id="@+id/txtNoSessions"
                 android:layout_width="match_parent"
@@ -275,6 +285,7 @@
                 android:paddingEnd="16dp"
                 android:clipToPadding="false"/>
 
+            <!-- Bottom spacer -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="24dp"/>
