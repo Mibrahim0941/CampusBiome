@@ -301,7 +301,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
@@ -317,6 +317,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="HOME"
                             android:textColor="#006B5E"
                             android:textSize="9sp" />
@@ -345,7 +346,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
@@ -361,6 +362,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="MAP"
                             android:textColor="#8F9B99"
                             android:textSize="9sp" />
@@ -389,7 +391,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
@@ -405,6 +407,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="TIMETABLE"
                             android:textColor="#8F9B99"
                             android:textSize="9sp" />
@@ -433,7 +436,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
@@ -449,6 +452,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="PROFESSORS"
                             android:textColor="#8F9B99"
                             android:textSize="9sp" />
@@ -477,7 +481,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingHorizontal="12dp"
+                        android:paddingHorizontal="4dp"
                         android:paddingVertical="6dp">
 
                         <ImageView
@@ -493,6 +497,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif-bold"
+                            android:maxLines="1"
                             android:text="COMMUNITY"
                             android:textColor="#8F9B99"
                             android:textSize="9sp" />
