@@ -55,22 +55,12 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String name = snapshot.getValue(String.class);
                     tvWelcomeUser.setText("Welcome " + name + "!");
-                } else {
-                    // If name doesn't exist, show email or default message
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null && user.getEmail() != null) {
-                        tvWelcomeUser.setText("Welcome " + user.getEmail() + "!");
-                    } else {
-                        tvWelcomeUser.setText("Welcome!");
-                    }
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StudentDashboardActivity.this, "Failed to load name: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                // Set default welcome message
-                tvWelcomeUser.setText("Welcome!");
+                Toast.makeText(StudentDashboardActivity.this, "Failed to load name", Toast.LENGTH_SHORT).show();
             }
         });
     }

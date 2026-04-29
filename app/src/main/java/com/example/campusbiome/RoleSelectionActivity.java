@@ -13,23 +13,23 @@ public class RoleSelectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // If user is already signed in, skip straight to their dashboard.
-        // You can enhance this by reading their role from Firestore.
+        // BUG FIX: Was calling startActivity(RoleSelectionActivity) → infinite loop.
+        // Now redirects to StudentDashboardActivity (most common case).
+        // TODO: When you add role-based dashboards, read role from Firebase here
+        //       and route to the correct dashboard (Faculty, Admin, etc.)
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            // TODO: redirect to appropriate dashboard based on stored role
-            // For now, go to a generic MainActivity
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, StudentDashboardActivity.class));
             finish();
             return;
         }
 
         setContentView(R.layout.activity_role_selection);
 
-        MaterialCardView cardStudent       = findViewById(R.id.cardStudent);
-        MaterialCardView cardFaculty       = findViewById(R.id.cardFaculty);
-        MaterialCardView cardAdmin         = findViewById(R.id.cardAdmin);
-        MaterialCardView cardSocietyMgr    = findViewById(R.id.cardSocietyManager);
+        MaterialCardView cardStudent    = findViewById(R.id.cardStudent);
+        MaterialCardView cardFaculty    = findViewById(R.id.cardFaculty);
+        MaterialCardView cardAdmin      = findViewById(R.id.cardAdmin);
+        MaterialCardView cardSocietyMgr = findViewById(R.id.cardSocietyManager);
 
         cardStudent.setOnClickListener(v -> navigate("student"));
         cardFaculty.setOnClickListener(v -> navigate("faculty"));
