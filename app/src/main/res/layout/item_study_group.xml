@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Study group list card.
-    No action button — the whole card is clickable (set in StudyGroupAdapter).
-    The "View details →" arrow and "✓ Joined" badge are the only bottom-row elements.
--->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -87,7 +82,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="10dp"/>
-        
+
 
     </LinearLayout>
 
