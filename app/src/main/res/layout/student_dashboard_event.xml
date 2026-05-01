@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Mirrors the exact event card style used in the student dashboard:
-    - Date box on left (tinted card with day + month)
-    - Title + description on right
--->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -23,20 +18,17 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <!-- Date box -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="64dp"
             android:layout_height="64dp"
             app:cardBackgroundColor="#F0F4F4"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="vertical">
-
                 <TextView
                     android:id="@+id/tvEventDay"
                     android:layout_width="wrap_content"
@@ -45,7 +37,6 @@
                     android:text="22"
                     android:textColor="#529F93"
                     android:textSize="20sp" />
-
                 <TextView
                     android:id="@+id/tvEventMonth"
                     android:layout_width="wrap_content"
@@ -58,7 +49,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Event text -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -71,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:text="Annual Book Fair"
+                android:text="Event Title"
                 android:textColor="#1A1C1C"
                 android:textSize="16sp" />
 
@@ -81,12 +71,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif"
-                android:text="Literacy Society is holding a book fair!"
+                android:text="Event Description"
                 android:textColor="#526966"
-                android:textSize="14sp"
-                android:maxLines="2"
-                android:ellipsize="end" />
+                android:textSize="14sp" />
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

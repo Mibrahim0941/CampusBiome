@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -27,8 +28,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private TextView tvWelcomeUser;
     private LinearLayout navHome, navMap, navTimetable, navProfessors, navCommunity;
     private LinearLayout llEventsContainer;
-
-    // The home-screen content that lives directly in the XML (not a fragment yet)
     private View homeContent;
 
     private FirebaseAuth mAuth;
@@ -48,51 +47,44 @@ public class StudentDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        btnLogout     = findViewById(R.id.btnLogout);
-        tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
-        btnMenu       = findViewById(R.id.btnMenu);
-        navHome       = findViewById(R.id.navHome);
-        navMap        = findViewById(R.id.navMap);
-        navTimetable  = findViewById(R.id.navTimetable);
-        navProfessors = findViewById(R.id.navProfessors);
-        navCommunity  = findViewById(R.id.navCommunity);
-
-        // The static home content (NestedScrollView inside fragment_container in XML).
-        // Fragments load on top of / replace it. On Home tap we restore it.
-        homeContent = findViewById(R.id.homeContent);
+        btnLogout         = findViewById(R.id.btnLogout);
+        tvWelcomeUser     = findViewById(R.id.tvWelcomeUser);
+        btnMenu           = findViewById(R.id.btnMenu);
+        navHome           = findViewById(R.id.navHome);
+        navMap            = findViewById(R.id.navMap);
+        navTimetable      = findViewById(R.id.navTimetable);
+        navProfessors     = findViewById(R.id.navProfessors);
+        navCommunity      = findViewById(R.id.navCommunity);
+        homeContent       = findViewById(R.id.homeContent);
         llEventsContainer = findViewById(R.id.llEventsContainer);
 
         btnMenu.setOnClickListener(v ->
                 Toast.makeText(this, "Menu - coming soon", Toast.LENGTH_SHORT).show());
 
-        navHome.setOnClickListener(v -> {
-            updateNavSelection(0);
-            showHome();
-        });
-
-        navMap.setOnClickListener(v -> {
-            updateNavSelection(1);
-            openFragment(new CampusMapFragment());
-        });
-
-        navTimetable.setOnClickListener(v -> {
-            updateNavSelection(2);
-            openFragment(new TimetableFragment());
-        });
-
-        navProfessors.setOnClickListener(v -> {
-            updateNavSelection(3);
-            openFragment(new ProfessorsFragment());
-        });
-
-        navCommunity.setOnClickListener(v -> {
-            updateNavSelection(4);
-            openFragment(new CommunityHubFragment());
-        });
+        navHome.setOnClickListener(v ->      { updateNavSelection(0); showHome(); });
+        navMap.setOnClickListener(v ->       { updateNavSelection(1); openFragment(new CampusMapFragment()); });
+        navTimetable.setOnClickListener(v -> { updateNavSelection(2); openFragment(new TimetableFragment()); });
+        navProfessors.setOnClickListener(v ->{ updateNavSelection(3); openFragment(new ProfessorsFragment()); });
+        navCommunity.setOnClickListener(v -> { updateNavSelection(4); openFragment(new CommunityHubFragment()); });
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
             goToRoleSelection();
+        });
+
+        // Back button: if a fragment is showing go home, otherwise exit
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Fragment current = getSupportFragmentManager()
+                        .findFragmentById(R.id.fragment_container);
+                if (current != null) {
+                    showHome();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
         });
 
         fetchUserName(currentUser.getUid());
@@ -103,13 +95,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Shows the static home XML content and removes any loaded fragment.
-     *
-     * UPGRADE PATH: When you create HomeFragment, replace this whole method with:
-     *     openFragment(new HomeFragment());
-     * and delete the homeContent NestedScrollView from the XML.
-     */
     private void showHome() {
         Fragment current = getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_container);
@@ -122,15 +107,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         if (homeContent != null) homeContent.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Load any fragment into fragment_container.
-     *
-     * HOW TO ADD A NEW SCREEN (e.g. Campus Map):
-     *   1. New > Fragment > Fragment (Blank)  ->  CampusMapFragment
-     *   2. Build its layout in res/layout/fragment_campus_map.xml
-     *   3. Change the navMap listener above to: openFragment(new CampusMapFragment());
-     *   Done. Nothing else needs to change.
-     */
     private void openFragment(Fragment fragment) {
         if (homeContent != null) homeContent.setVisibility(View.GONE);
         getSupportFragmentManager()
@@ -158,7 +134,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
     }
 
     private void updateNavSelection(int selectedIndex) {
-        // IDs: 0=Home, 1=Map, 2=Timetable, 3=Professors, 4=Community
         com.google.android.material.card.MaterialCardView[] cards = {
                 findViewById(R.id.navHomeCard),
                 findViewById(R.id.navMapCard),
@@ -183,7 +158,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         for (int i = 0; i < cards.length; i++) {
             if (cards[i] == null || icons[i] == null || texts[i] == null) continue;
-
             if (i == selectedIndex) {
                 cards[i].setCardBackgroundColor(android.graphics.Color.parseColor("#E6F2ED"));
                 icons[i].setColorFilter(android.graphics.Color.parseColor("#006B5E"));
@@ -203,150 +177,161 @@ public class StudentDashboardActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    public void onBackPressed() {
-        Fragment current = getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_container);
-        if (current != null) {
-            showHome();
-        } else {
-            super.onBackPressed();
-        }
-    }
+    // ── Events ────────────────────────────────────────────────────────────────
 
     private void fetchEvents() {
-        android.util.Log.d("EventsFetch", "Starting to fetch events...");
         mDatabase.child("Events").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (llEventsContainer != null) {
-                    llEventsContainer.removeAllViews();
+                if (llEventsContainer != null) llEventsContainer.removeAllViews();
+                if (!snapshot.exists()) return;
+
+                java.util.List<EventItem> upcoming = new java.util.ArrayList<>();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    EventItem item = new EventItem(ds);
+                    if (item.isWithinNextWeek()) upcoming.add(item);
                 }
 
-                if (!snapshot.exists()) {
-                    Toast.makeText(StudentDashboardActivity.this, "No events found in DB", Toast.LENGTH_SHORT).show();
-                    return;
+                java.util.Collections.sort(upcoming);
+
+                int count = 0;
+                for (EventItem item : upcoming) {
+                    if (count >= 3) break;
+
+                    View card = LayoutInflater.from(StudentDashboardActivity.this)
+                            .inflate(R.layout.student_dashboard_event, llEventsContainer, false);
+
+                    ((TextView) card.findViewById(R.id.tvEventDay)).setText(
+                            item.dayStr != null ? item.dayStr : "--");
+                    ((TextView) card.findViewById(R.id.tvEventMonth)).setText(
+                            item.monthStr != null ? item.monthStr : "");
+                    ((TextView) card.findViewById(R.id.tvEventTitle)).setText(item.title);
+                    ((TextView) card.findViewById(R.id.tvEventDescription)).setText(item.description);
+
+                    TextView tvSociety = card.findViewById(R.id.tvSocietyName);
+                    if (item.societyName != null && !item.societyName.isEmpty()) {
+                        tvSociety.setText(item.societyName);
+                        tvSociety.setVisibility(View.VISIBLE);
+                    }
+
+                    TextView tvVenue = card.findViewById(R.id.tvEventVenue);
+                    if (item.venue != null && !item.venue.isEmpty()) {
+                        tvVenue.setText("📍 " + item.venue);
+                        tvVenue.setVisibility(View.VISIBLE);
+                    }
+
+                    TextView tvTime = card.findViewById(R.id.tvEventTime);
+                    if (item.timeStr != null && !item.timeStr.isEmpty()) {
+                        tvTime.setText("🕐 " + item.timeStr);
+                        tvTime.setVisibility(View.VISIBLE);
+                    }
+
+                    llEventsContainer.addView(card);
+                    count++;
                 }
 
-                try {
-                    java.util.List<EventItem> eventList = new java.util.ArrayList<>();
-                    for (DataSnapshot eventSnapshot : snapshot.getChildren()) {
-                        eventList.add(new EventItem(eventSnapshot));
-                    }
-
-                    java.util.Collections.sort(eventList);
-
-                    int count = 0;
-                    for (EventItem item : eventList) {
-                        if (count >= 3) break;
-
-                        View eventView = LayoutInflater.from(StudentDashboardActivity.this)
-                                .inflate(R.layout.item_event, llEventsContainer, false);
-
-                        TextView tvTitle = eventView.findViewById(R.id.tvEventTitle);
-                        TextView tvDesc = eventView.findViewById(R.id.tvEventDescription);
-                        TextView tvDay = eventView.findViewById(R.id.tvEventDay);
-                        TextView tvMonth = eventView.findViewById(R.id.tvEventMonth);
-
-                        tvTitle.setText(item.title);
-                        tvDesc.setText(item.description);
-
-                        if (item.dayStr != null && item.monthStr != null) {
-                            tvDay.setText(item.dayStr);
-                            tvMonth.setText(item.monthStr);
-                        } else if (item.dateStr != null) {
-                            String[] parts = item.dateStr.split(" ");
-                            if (parts.length >= 2) {
-                                tvDay.setText(parts[0]);
-                                tvMonth.setText(parts[1]);
-                            } else {
-                                tvDay.setText(item.dateStr);
-                                tvMonth.setText("");
-                            }
-                        } else {
-                            tvDay.setText("--");
-                            tvMonth.setText("");
-                        }
-
-                        llEventsContainer.addView(eventView);
-                        count++;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(StudentDashboardActivity.this, "Error parsing event: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                if (upcoming.isEmpty()) {
+                    TextView empty = new TextView(StudentDashboardActivity.this);
+                    empty.setText("No events this Month");
+                    empty.setTextColor(android.graphics.Color.parseColor("#526966"));
+                    empty.setPadding(0, 8, 0, 8);
+                    llEventsContainer.addView(empty);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StudentDashboardActivity.this, "DB Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(StudentDashboardActivity.this,
+                        "Could not load events", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // ── EventItem — ONE definition, no duplicates ─────────────────────────────
+
     private static class EventItem implements Comparable<EventItem> {
-        String title, description, dayStr, monthStr, dateStr;
-        int monthNum = 99, dayNum = 99;
 
-        public EventItem(DataSnapshot snapshot) {
-            title = String.valueOf(snapshot.child("title").getValue());
-            description = String.valueOf(snapshot.child("description").getValue());
-            Object dObj = snapshot.child("day").getValue();
-            Object mObj = snapshot.child("month").getValue();
-            Object dtObj = snapshot.child("date").getValue();
+        String title, description, dayStr, monthStr;
+        String venue, societyName, timeStr;
+        int monthNum = 99, dayNum = 99, yearNum = 2026;
 
-            dayStr = dObj != null ? String.valueOf(dObj) : null;
-            monthStr = mObj != null ? String.valueOf(mObj) : null;
-            dateStr = dtObj != null ? String.valueOf(dtObj) : null;
+        EventItem(DataSnapshot ds) {
+            Object t    = ds.child("title").getValue();
+            Object d    = ds.child("description").getValue();
+            Object day  = ds.child("day").getValue();
+            Object mon  = ds.child("month").getValue();
+            Object yr   = ds.child("year").getValue();
+            Object ven  = ds.child("venue").getValue();
+            Object soc  = ds.child("societyName").getValue();
+            Object time = ds.child("time").getValue();
+            Object ampm = ds.child("ampm").getValue();
 
-            if (title.equals("null")) title = "No Title";
-            if (description.equals("null")) description = "No Description";
+            title       = t   != null ? String.valueOf(t)   : "No Title";
+            description = d   != null ? String.valueOf(d)   : "";
+            dayStr      = day != null ? String.valueOf(day) : null;
+            monthStr    = mon != null ? String.valueOf(mon) : null;
+            venue       = ven != null ? String.valueOf(ven) : null;
+            societyName = soc != null ? String.valueOf(soc) : null;
+            String tStr  = time != null ? String.valueOf(time) : null;
+            String apStr = ampm != null ? String.valueOf(ampm) : null;
+            timeStr      = tStr != null ? (apStr != null ? tStr + " " + apStr : tStr) : null;
 
+            if (yr != null) {
+                try { yearNum = Integer.parseInt(String.valueOf(yr).trim()); }
+                catch (Exception ignored) {}
+            }
             parseDate();
         }
 
-        private void parseDate() {
-            String m = monthStr;
-            String d = dayStr;
-            if (m == null && d == null && dateStr != null) {
-                String[] parts = dateStr.split(" ");
-                if (parts.length >= 2) {
-                    d = parts[0];
-                    m = parts[1];
+        void parseDate() {
+            if (dayStr != null) {
+                try { dayNum = Integer.parseInt(dayStr.trim()); }
+                catch (Exception ignored) {}
+            }
+            if (monthStr != null && monthStr.length() >= 3) {
+                switch (monthStr.trim().toUpperCase().substring(0, 3)) {
+                    case "JAN": monthNum = 1;  break;
+                    case "FEB": monthNum = 2;  break;
+                    case "MAR": monthNum = 3;  break;
+                    case "APR": monthNum = 4;  break;
+                    case "MAY": monthNum = 5;  break;
+                    case "JUN": monthNum = 6;  break;
+                    case "JUL": monthNum = 7;  break;
+                    case "AUG": monthNum = 8;  break;
+                    case "SEP": monthNum = 9;  break;
+                    case "OCT": monthNum = 10; break;
+                    case "NOV": monthNum = 11; break;
+                    case "DEC": monthNum = 12; break;
                 }
             }
-            if (d != null) {
-                try { dayNum = Integer.parseInt(d.trim()); } catch (Exception ignored) {}
-            }
-            if (m != null) {
-                String mUpper = m.trim().toUpperCase();
-                if (mUpper.startsWith("JAN")) monthNum = 1;
-                else if (mUpper.startsWith("FEB")) monthNum = 2;
-                else if (mUpper.startsWith("MAR")) monthNum = 3;
-                else if (mUpper.startsWith("APR")) monthNum = 4;
-                else if (mUpper.startsWith("MAY")) monthNum = 5;
-                else if (mUpper.startsWith("JUN")) monthNum = 6;
-                else if (mUpper.startsWith("JUL")) monthNum = 7;
-                else if (mUpper.startsWith("AUG")) monthNum = 8;
-                else if (mUpper.startsWith("SEP")) monthNum = 9;
-                else if (mUpper.startsWith("OCT")) monthNum = 10;
-                else if (mUpper.startsWith("NOV")) monthNum = 11;
-                else if (mUpper.startsWith("DEC")) monthNum = 12;
+        }
+
+        boolean isWithinNextWeek() {
+            if (monthNum == 99 || dayNum == 99) return false;
+            try {
+                java.util.Calendar eventCal = java.util.Calendar.getInstance();
+                eventCal.set(yearNum, monthNum - 1, dayNum, 0, 0, 0);
+                eventCal.set(java.util.Calendar.MILLISECOND, 0);
+
+                java.util.Calendar today = java.util.Calendar.getInstance();
+                today.set(java.util.Calendar.HOUR_OF_DAY, 0);
+                today.set(java.util.Calendar.MINUTE, 0);
+                today.set(java.util.Calendar.SECOND, 0);
+                today.set(java.util.Calendar.MILLISECOND, 0);
+
+                java.util.Calendar weekLater = (java.util.Calendar) today.clone();
+                weekLater.add(java.util.Calendar.DAY_OF_YEAR, 30);
+
+                return !eventCal.before(today) && !eventCal.after(weekLater);
+            } catch (Exception e) {
+                return false;
             }
         }
 
         @Override
         public int compareTo(EventItem o) {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int currentMonth = cal.get(java.util.Calendar.MONTH) + 1;
-            int currentDay = cal.get(java.util.Calendar.DAY_OF_MONTH);
-
-            int adjustedThisMonth = this.monthNum < currentMonth || (this.monthNum == currentMonth && this.dayNum < currentDay) ? this.monthNum + 12 : this.monthNum;
-            int adjustedOtherMonth = o.monthNum < currentMonth || (o.monthNum == currentMonth && o.dayNum < currentDay) ? o.monthNum + 12 : o.monthNum;
-
-            if (adjustedThisMonth != adjustedOtherMonth) {
-                return Integer.compare(adjustedThisMonth, adjustedOtherMonth);
-            }
+            if (this.yearNum  != o.yearNum)  return Integer.compare(this.yearNum,  o.yearNum);
+            if (this.monthNum != o.monthNum) return Integer.compare(this.monthNum, o.monthNum);
             return Integer.compare(this.dayNum, o.dayNum);
         }
     }

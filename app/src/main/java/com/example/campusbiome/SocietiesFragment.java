@@ -125,7 +125,7 @@ public class SocietiesFragment extends Fragment {
                     if (s == null) continue;
 
                     // Only show approved societies to students
-                    if ("rejected".equals(s.getStatus())) continue;
+                    if (!"approved".equals(s.getStatus())) continue;
 
                     s.setId(ds.getKey());
                     allSocieties.add(s);
