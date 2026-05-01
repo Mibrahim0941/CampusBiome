@@ -19,24 +19,35 @@ public class SocietyEventAdapter
         void onViewRegistrations(SocietyEvent event, String eventId);
     }
 
-    private final List<SocietyEvent>         list;
-    private final List<String>               eventIds;   // parallel list of Firebase keys
+    private final List<SocietyEvent>          list;
+    private final List<String>                eventIds;
     private final OnViewRegistrationsListener listener;
+    private final String                      buttonLabel; // e.g. "View Registrations" or "View Tasks"
 
+    // ── Constructor with custom button label ──────────────────────────────────
+    public SocietyEventAdapter(List<SocietyEvent>          list,
+                               List<String>                eventIds,
+                               OnViewRegistrationsListener listener,
+                               String                      buttonLabel) {
+        this.list        = list;
+        this.eventIds    = eventIds;
+        this.listener    = listener;
+        this.buttonLabel = buttonLabel;
+    }
+
+    // ── Convenience constructor (keeps old call sites working) ────────────────
     public SocietyEventAdapter(List<SocietyEvent>          list,
                                List<String>                eventIds,
                                OnViewRegistrationsListener listener) {
-        this.list     = list;
-        this.eventIds = eventIds;
-        this.listener = listener;
+        this(list, eventIds, listener, "View Registrations");
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout = (listener == null)
-                ? R.layout.society_dashboard_event  // dashboard preview — no button
-                : R.layout.society_event;           // events fragment — has button
+                ? R.layout.society_dashboard_event  // dashboard — no button
+                : R.layout.society_event;           // events/tasks fragment — has button
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(layout, parent, false);
         return new ViewHolder(v);
@@ -64,15 +75,19 @@ public class SocietyEventAdapter
             h.tvRegistrationCount.setText(e.getRegistrationCount() + " registered");
         }
 
-        if (h.btnViewRegistrations != null && listener != null
-                && eventIds != null && pos < eventIds.size()) {
-            String id = eventIds.get(pos);
-            h.btnViewRegistrations.setVisibility(View.VISIBLE);
-            h.btnViewRegistrations.setOnClickListener(v -> listener.onViewRegistrations(e, id));
-        } else if (h.btnViewRegistrations != null) {
-            h.btnViewRegistrations.setVisibility(View.GONE);
+        if (h.btnViewRegistrations != null) {
+            if (listener != null && eventIds != null && pos < eventIds.size()) {
+                // Set the label based on which screen is using the adapter
+                h.btnViewRegistrations.setText(buttonLabel);
+                h.btnViewRegistrations.setVisibility(View.VISIBLE);
+                String id = eventIds.get(pos);
+                h.btnViewRegistrations.setOnClickListener(v -> listener.onViewRegistrations(e, id));
+            } else {
+                h.btnViewRegistrations.setVisibility(View.GONE);
+            }
         }
     }
+
     @Override
     public int getItemCount() { return list.size(); }
 
