@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_appointments"
+        android:icon="@drawable/ic_appointments"
+        android:title="Appointments" />
+    <item
+        android:id="@+id/nav_office_hours"
+        android:icon="@drawable/ic_office_hours"
+        android:title="Office Hours" />
+    <item
+        android:id="@+id/nav_announcements"
+        android:icon="@drawable/ic_announcements"
+        android:title="Announcements" />
+</menu>

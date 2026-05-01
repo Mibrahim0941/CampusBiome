@@ -54,6 +54,8 @@ public class RoleSelectionActivity extends AppCompatActivity {
                     intent = new Intent(RoleSelectionActivity.this, AdminDashboardActivity.class);
                 } else if ("student".equals(role)) {
                     intent = new Intent(RoleSelectionActivity.this, StudentDashboardActivity.class);
+                } else if ("faculty".equals(role)) {
+                    intent = new Intent(RoleSelectionActivity.this, FacultyDashboardActivity.class);
                 } else {
                     intent = new Intent(RoleSelectionActivity.this, Dashboard.class);
                 }

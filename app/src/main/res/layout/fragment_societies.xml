@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,30 +14,34 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Banner -->
+        <!-- Propose Society Banner -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
             app:cardBackgroundColor="@color/primary">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Discover and join student societies"
+                    android:text="Want to start a new society on campus?"
                     android:textColor="@color/white"
                     android:textSize="13sp"/>
+
                 <Button
+                    android:id="@+id/btnProposeSociety"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
-                    android:text="+ Register"
+                    android:text="Propose"
                     android:textColor="@color/primary"
                     android:backgroundTint="@color/white"
                     style="@style/Widget.MaterialComponents.Button"
@@ -42,168 +49,121 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your Memberships"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Photography Society (expanded) -->
-        <androidx.cardview.widget.CardView
+        <!-- Search Bar -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="@color/card_bg">
-            <LinearLayout
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:startIconDrawable="@android:drawable/ic_menu_search"
+            app:boxStrokeColor="@color/primary"
+            app:hintTextColor="@color/primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearchSociety"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <TextView android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Photography Society"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/text_primary"/>
-                <TextView android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Arts &amp; Culture"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"/>
-                <TextView android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Exploring photography techniques and organizing photo walks"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:layout_marginTop="8dp"/>
-                <TextView android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="President: Aaiza Iqbal  •  67 members"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:layout_marginTop="6dp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp">
-                    <Button
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:text="View"
-                        android:backgroundTint="@color/surface"
-                        android:textColor="@color/primary"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-                    <Button
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:text="Leave"
-                        android:backgroundTint="@color/primary"
-                        android:textColor="@color/white"
-                        style="@style/Widget.MaterialComponents.Button"
-                        app:cornerRadius="8dp"/>
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                android:hint="Search societies..."
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- My Societies Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="My Societies"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+
+            <TextView
+                android:id="@+id/txtMySocietiesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="13sp"
+                android:textColor="@color/primary"/>
+        </LinearLayout>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Browse Societies"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- CS Society -->
-        <androidx.cardview.widget.CardView
+            android:id="@+id/txtNoMySocieties"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="@color/card_bg">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Computer Science Society"
-                        android:textStyle="bold"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_primary"/>
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Academic"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"/>
-                </LinearLayout>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Join"
-                    android:backgroundTint="@color/primary"
-                    android:textColor="@color/white"
-                    style="@style/Widget.MaterialComponents.Button"
-                    app:cornerRadius="18dp"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:text="You haven't joined any societies yet."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone"/>
 
-        <!-- Environmental -->
-        <androidx.cardview.widget.CardView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMySocieties"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardBackgroundColor="@color/card_bg">
-            <LinearLayout
-                android:layout_width="match_parent"
+            android:nestedScrollingEnabled="false"/>
+
+        <!-- Browse All Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Environmental Action"
-                        android:textStyle="bold"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_primary"/>
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Social Impact"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"/>
-                </LinearLayout>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Join"
-                    android:backgroundTint="@color/primary"
-                    android:textColor="@color/white"
-                    style="@style/Widget.MaterialComponents.Button"
-                    app:cornerRadius="18dp"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                android:layout_weight="1"
+                android:text="Browse Societies"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
+
+            <TextView
+                android:id="@+id/txtBrowseCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="13sp"
+                android:textColor="@color/primary"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtNoBrowse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No societies available right now."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerBrowseSocieties"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"/>
+
+        <View android:layout_width="match_parent" android:layout_height="24dp"/>
 
     </LinearLayout>
-</ScrollView>
+
+</androidx.core.widget.NestedScrollView>

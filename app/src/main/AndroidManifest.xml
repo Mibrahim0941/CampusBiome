@@ -15,6 +15,13 @@
         <activity
             android:name=".StudentDashboardActivity"
             android:exported="false" />
+        <activity
+            android:name=".FacultyDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SocietyDashboardActivity"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
