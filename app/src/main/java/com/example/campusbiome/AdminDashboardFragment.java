@@ -85,6 +85,7 @@ public class AdminDashboardFragment extends Fragment {
     }
 
     private void fetchStats() {
+        // Fetch Students from Users node
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -93,43 +94,48 @@ public class AdminDashboardFragment extends Fragment {
                 int students = 0;
                 int defaulters = 0;
                 int offenders = 0;
+
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    String role = userSnapshot.child("role").getValue(String.class);
+                    if ("student".equals(role)) {
+                        students++;
+                        Boolean isDefaulter = userSnapshot.child("isDefaulter").getValue(Boolean.class);
+                        if (isDefaulter != null && isDefaulter) defaulters++;
+                        Boolean isOffender = userSnapshot.child("isOffender").getValue(Boolean.class);
+                        if (isOffender != null && isOffender) offenders++;
+                    }
+                }
+                tvTotalStudents.setText(String.valueOf(students));
+                tvDefaulters.setText(String.valueOf(defaulters));
+                tvOffenders.setText(String.valueOf(offenders));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        // Fetch Faculty from Faculty node
+        mDatabase.child("Faculty").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) return;
+
                 int faculty = 0;
                 int visiting = 0;
                 int labInstructors = 0;
 
-                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    String role = userSnapshot.child("role").getValue(String.class);
-                    
-                    if ("student".equals(role)) {
-                        students++;
-                        
-                        Boolean isDefaulter = userSnapshot.child("isDefaulter").getValue(Boolean.class);
-                        if (isDefaulter != null && isDefaulter) defaulters++;
-                        
-                        Boolean isOffender = userSnapshot.child("isOffender").getValue(Boolean.class);
-                        if (isOffender != null && isOffender) offenders++;
-                        
-                    } else if ("faculty".equals(role)) {
-                        faculty++;
-                        
-                        String post = userSnapshot.child("post").getValue(String.class);
-                        if ("Visiting".equalsIgnoreCase(post)) {
-                            visiting++;
-                        } else if ("Lab Instructor".equalsIgnoreCase(post)) {
-                            labInstructors++;
-                        }
+                for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
+                    faculty++;
+                    String post = facultySnapshot.child("post").getValue(String.class);
+                    if ("Visiting".equalsIgnoreCase(post)) {
+                        visiting++;
+                    } else if ("Lab Instructor".equalsIgnoreCase(post)) {
+                        labInstructors++;
                     }
                 }
-                
-                tvTotalStudents.setText(String.valueOf(students));
-                tvDefaulters.setText(String.valueOf(defaulters));
-                tvOffenders.setText(String.valueOf(offenders));
-                
                 tvTotalStaff.setText(String.valueOf(faculty));
                 tvVisiting.setText(String.valueOf(visiting));
                 tvLabInstructors.setText(String.valueOf(labInstructors));
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });

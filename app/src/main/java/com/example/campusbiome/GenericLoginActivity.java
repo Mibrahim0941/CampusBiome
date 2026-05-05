@@ -78,6 +78,31 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void checkUserRole(String uid) {
+        if ("faculty".equals(role)) {
+            // Check Faculty node first
+            mDatabase.child("Faculty").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        btnLogin.setEnabled(true);
+                        goToDashboard();
+                    } else {
+                        // Fallback to check Users node (maybe they are approved but not yet in Faculty node, though my new logic handles that)
+                        checkUsersNode(uid);
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    btnLogin.setEnabled(true);
+                    onFailed(error.getMessage());
+                }
+            });
+        } else {
+            checkUsersNode(uid);
+        }
+    }
+
+    private void checkUsersNode(String uid) {
         mDatabase.child("Users").child(uid).child("role")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

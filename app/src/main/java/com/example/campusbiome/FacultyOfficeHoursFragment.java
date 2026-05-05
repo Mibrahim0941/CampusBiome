@@ -37,7 +37,7 @@ public class FacultyOfficeHoursFragment extends Fragment {
     private String currentUid;
     
     private List<String> currentDays = new ArrayList<>();
-    private String currentOfficeHours = "";
+    private List<String> currentOfficeHours = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,9 +94,9 @@ public class FacultyOfficeHoursFragment extends Fragment {
                     }
                     
                     if (hoursStr != null) {
-                        currentOfficeHours = hoursStr;
+                        currentOfficeHours = new ArrayList<>(Arrays.asList(hoursStr.split("\\s*,\\s*")));
                     } else {
-                        currentOfficeHours = "";
+                        currentOfficeHours = new ArrayList<>();
                     }
                     
                     adapter.updateData(currentDays, currentOfficeHours);
@@ -111,8 +111,20 @@ public class FacultyOfficeHoursFragment extends Fragment {
     }
 
     private void removeDay(String dayToRemove) {
-        currentDays.removeIf(d -> d.trim().equalsIgnoreCase(dayToRemove));
-        updateFirebase();
+        int index = -1;
+        for (int i = 0; i < currentDays.size(); i++) {
+            if (currentDays.get(i).trim().equalsIgnoreCase(dayToRemove)) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            currentDays.remove(index);
+            if (index < currentOfficeHours.size()) {
+                currentOfficeHours.remove(index);
+            }
+            updateFirebase();
+        }
     }
 
     private void addDay(String dayToAdd) {
@@ -125,6 +137,7 @@ public class FacultyOfficeHoursFragment extends Fragment {
         }
         if (!exists) {
             currentDays.add(dayToAdd);
+            currentOfficeHours.add("N/A"); // Default timing for new day
             updateFirebase();
         }
     }
@@ -149,7 +162,7 @@ public class FacultyOfficeHoursFragment extends Fragment {
         
         final EditText etHours = new EditText(getContext());
         etHours.setHint("Hours (e.g. 2:00 PM - 4:00 PM)");
-        etHours.setText(currentOfficeHours);
+        etHours.setText(TextUtils.join(", ", currentOfficeHours));
         layout.addView(etHours);
         
         builder.setView(layout);
@@ -159,7 +172,7 @@ public class FacultyOfficeHoursFragment extends Fragment {
             String newHours = etHours.getText().toString();
             
             currentDays = new ArrayList<>(Arrays.asList(newDays.split("\\s*,\\s*")));
-            currentOfficeHours = newHours;
+            currentOfficeHours = new ArrayList<>(Arrays.asList(newHours.split("\\s*,\\s*")));
             updateFirebase();
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
@@ -169,8 +182,9 @@ public class FacultyOfficeHoursFragment extends Fragment {
 
     private void updateFirebase() {
         String daysStr = TextUtils.join(", ", currentDays);
+        String hoursStr = TextUtils.join(", ", currentOfficeHours);
         dbRef.child("days").setValue(daysStr);
-        dbRef.child("officeHours").setValue(currentOfficeHours)
+        dbRef.child("officeHours").setValue(hoursStr)
             .addOnSuccessListener(aVoid -> {
                 if (getContext() != null) Toast.makeText(getContext(), "Office hours updated", Toast.LENGTH_SHORT).show();
             })

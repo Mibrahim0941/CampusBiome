@@ -16,7 +16,7 @@ import java.util.List;
 public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOfficeHourAdapter.ViewHolder> {
 
     private List<String> days;
-    private String officeHours;
+    private List<String> officeHours;
     private OnOfficeHourActionListener actionListener;
 
     public interface OnOfficeHourActionListener {
@@ -25,13 +25,13 @@ public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOffice
         void onAdd(String day);
     }
 
-    public FacultyOfficeHourAdapter(List<String> days, String officeHours, OnOfficeHourActionListener actionListener) {
+    public FacultyOfficeHourAdapter(List<String> days, List<String> officeHours, OnOfficeHourActionListener actionListener) {
         this.days = days;
         this.officeHours = officeHours;
         this.actionListener = actionListener;
     }
 
-    public void updateData(List<String> newDays, String newOfficeHours) {
+    public void updateData(List<String> newDays, List<String> newOfficeHours) {
         this.days = newDays;
         this.officeHours = newOfficeHours;
         notifyDataSetChanged();
@@ -48,9 +48,14 @@ public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOffice
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (days == null || days.isEmpty()) return;
         String currentDay = days.get(position).trim();
+        String currentHour = "N/A";
+        
+        if (officeHours != null && position < officeHours.size()) {
+            currentHour = officeHours.get(position).trim();
+        }
 
         holder.tvDay.setText(currentDay);
-        holder.tvTime.setText("• " + officeHours);
+        holder.tvTime.setText("• " + currentHour);
         holder.btnEdit.setText("EDIT");
         holder.btnDelete.setVisibility(View.VISIBLE);
         
