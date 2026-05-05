@@ -47,7 +47,7 @@ public class FacultyProfileFragment extends Fragment {
 
         String userId = mAuth.getCurrentUser().getUid();
 
-        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("Faculty").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists() && isAdded()) {
@@ -60,6 +60,26 @@ public class FacultyProfileFragment extends Fragment {
                     if (post != null) tvPost.setText(post);
                     if (email != null) tvEmail.setText(email);
                     if (department != null) tvDepartment.setText(department);
+                } else if (isAdded()) {
+                    // Fallback to Users node just in case
+                    mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            if (userSnapshot.exists() && isAdded()) {
+                                String name = userSnapshot.child("name").getValue(String.class);
+                                String post = userSnapshot.child("post").getValue(String.class);
+                                String email = userSnapshot.child("email").getValue(String.class);
+                                String department = userSnapshot.child("department").getValue(String.class);
+
+                                if (name != null) tvName.setText(name);
+                                if (post != null) tvPost.setText(post);
+                                if (email != null) tvEmail.setText(email);
+                                if (department != null) tvDepartment.setText(department);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
                 }
             }
 

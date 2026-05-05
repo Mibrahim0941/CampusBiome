@@ -49,18 +49,19 @@ public class AdminAddFacultyActivity extends AppCompatActivity {
             return;
         }
 
-        String userId = mDatabase.child("Users").push().getKey();
-        if (userId == null) return;
+        String facultyId = mDatabase.child("Faculty").push().getKey();
+        if (facultyId == null) return;
 
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", name);
-        user.put("email", email);
-        user.put("post", post);
-        user.put("department", department);
-        user.put("role", "faculty");
-        user.put("status", "approved");
+        Map<String, Object> faculty = new HashMap<>();
+        faculty.put("id", facultyId);
+        faculty.put("name", name);
+        faculty.put("email", email);
+        faculty.put("post", post);
+        faculty.put("department", department);
+        faculty.put("role", "faculty");
+        faculty.put("status", "approved");
 
-        mDatabase.child("Users").child(userId).setValue(user)
+        mDatabase.child("Faculty").child(facultyId).setValue(faculty)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(AdminAddFacultyActivity.this, "Faculty member added successfully", Toast.LENGTH_SHORT).show();
                     finish();
