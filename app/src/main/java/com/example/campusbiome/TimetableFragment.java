@@ -206,10 +206,10 @@ public class TimetableFragment extends Fragment {
                     String code = courseSnap.child("code").getValue(String.class);
                     String instructor = courseSnap.child("instructor_short").getValue(String.class);
                     String durationStr = courseSnap.child("duration_minutes").getValue(String.class);
-                    int duration = 60; // default
+                    int courseDuration = 60; // default
                     if (durationStr != null) {
                         try {
-                            duration = Integer.parseInt(durationStr);
+                            courseDuration = Integer.parseInt(durationStr);
                         } catch (Exception ignored) {}
                     }
 
@@ -218,11 +218,22 @@ public class TimetableFragment extends Fragment {
                         String day = slotSnap.child("day").getValue(String.class);
                         String time = slotSnap.child("slot").getValue(String.class);
                         String venue = slotSnap.child("venue").getValue(String.class);
+                        int finalDuration = slotSnap.hasChild("durationMinutes") ? 
+                                slotSnap.child("durationMinutes").getValue(Integer.class) : courseDuration;
 
                         if (day != null && time != null && venue != null) {
-                            TimetableSlot slot = new TimetableSlot(code, title, instructor, day, time, venue, duration);
+                            TimetableSlot slot = new TimetableSlot(code, title, instructor, day, time, venue, finalDuration);
                             if (slotsByDay.containsKey(day)) {
                                 slotsByDay.get(day).add(slot);
+                                // Schedule Reminder
+                                CampusBiomeApp.scheduleReminder(
+                                        getContext(),
+                                        code + "_" + day + "_" + time,
+                                        "Upcoming Class",
+                                        title + " starts in 30 minutes at " + venue,
+                                        day,
+                                        time.split("-")[0].trim()
+                                );
                             }
                         }
                     }

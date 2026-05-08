@@ -9,17 +9,23 @@ public class FacultyAppointment implements Serializable {
     private String description;
     private String status;
     private StudentInfo student;
+    private String day;
+    private String startTime;
+    private String duration;
 
     public FacultyAppointment() {
     }
 
-    public FacultyAppointment(String id, String facultyId, String createdAt, String description, String status, StudentInfo student) {
+    public FacultyAppointment(String id, String facultyId, String createdAt, String description, String status, StudentInfo student, String day, String startTime, String duration) {
         this.id = id;
         this.facultyId = facultyId;
         this.createdAt = createdAt;
         this.description = description;
         this.status = status;
         this.student = student;
+        this.day = day;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public String getId() { return id; }
@@ -39,6 +45,15 @@ public class FacultyAppointment implements Serializable {
 
     public StudentInfo getStudent() { return student; }
     public void setStudent(StudentInfo student) { this.student = student; }
+
+    public String getDay() { return day; }
+    public void setDay(String day) { this.day = day; }
+
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+
+    public String getDuration() { return duration; }
+    public void setDuration(String duration) { this.duration = duration; }
 
     public static class StudentInfo implements Serializable {
         private String email;

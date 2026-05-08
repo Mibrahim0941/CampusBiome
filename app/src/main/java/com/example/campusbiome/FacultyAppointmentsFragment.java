@@ -42,12 +42,12 @@ public class FacultyAppointmentsFragment extends Fragment {
         adapter = new FacultyAppointmentAdapter(appointmentList, new FacultyAppointmentAdapter.OnAppointmentActionListener() {
             @Override
             public void onAccept(FacultyAppointment appointment) {
-                updateAppointmentStatus(appointment, "approved");
+                updateAppointmentStatus(appointment, "approved", null);
             }
 
             @Override
             public void onReject(FacultyAppointment appointment) {
-                updateAppointmentStatus(appointment, "rejected");
+                showRejectionDialog(appointment);
             }
 
             @Override
@@ -137,11 +137,77 @@ public class FacultyAppointmentsFragment extends Fragment {
         ((android.widget.ImageView) itemView.findViewById(R.id.ivIcon)).setImageResource(iconRes);
     }
 
-    private void updateAppointmentStatus(FacultyAppointment appointment, String status) {
+    private void showRejectionDialog(FacultyAppointment appointment) {
+        if (getContext() == null) return;
+
+        android.widget.EditText etReason = new android.widget.EditText(getContext());
+        etReason.setHint("Enter reason for rejection");
+        etReason.setPadding(40, 40, 40, 40);
+
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("Reject Appointment")
+                .setView(etReason)
+                .setPositiveButton("Reject", (dialog, which) -> {
+                    String reason = etReason.getText().toString().trim();
+                    if (reason.isEmpty()) {
+                        reason = "No reason provided.";
+                    }
+                    updateAppointmentStatus(appointment, "rejected", reason);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void updateAppointmentStatus(FacultyAppointment appointment, String status, String rejectionReason) {
         if (appointment.getId() != null) {
-            dbRef.child(appointment.getId()).child("status").setValue(status)
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Appointment " + status, Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update", Toast.LENGTH_SHORT).show());
+            java.util.Map<String, Object> updates = new java.util.HashMap<>();
+            updates.put("status", status);
+            if (rejectionReason != null) {
+                updates.put("rejectionReason", rejectionReason);
+            }
+
+            dbRef.child(appointment.getId()).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Appointment " + status, Toast.LENGTH_SHORT).show();
+                    }
+                    
+                    // Create notification in DB for the student
+                    if (appointment.getStudent() != null) {
+                        String studentUid = appointment.getStudent().getUid();
+                        String day = appointment.getDay();
+                        String startTime = appointment.getStartTime();
+                        
+                        String title;
+                        String message;
+                        
+                        if ("approved".equals(status)) {
+                            title = "Appointment Approved!";
+                            message = "Your meeting for " + (day != null ? day : "") + " at " + (startTime != null ? startTime : "") + " has been approved.";
+                        } else if ("rejected".equals(status)) {
+                            title = "Appointment Rejected";
+                            message = "Your meeting for " + (day != null ? day : "") + " at " + (startTime != null ? startTime : "") + " was rejected. Reason: " + rejectionReason;
+                        } else {
+                            return; // Don't notify for other status changes if any
+                        }
+                        
+                        DatabaseReference notifRef = FirebaseDatabase.getInstance().getReference()
+                                .child("Notifications").child(studentUid).push();
+                                
+                        java.util.HashMap<String, Object> notifData = new java.util.HashMap<>();
+                        notifData.put("title", title);
+                        notifData.put("message", message);
+                        notifData.put("type", "alert");
+                        notifData.put("timestamp", System.currentTimeMillis());
+                        notifData.put("isRead", false);
+                        notifRef.setValue(notifData);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Failed to update", Toast.LENGTH_SHORT).show();
+                    }
+                });
         }
     }
 }

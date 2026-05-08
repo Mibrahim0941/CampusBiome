@@ -142,93 +142,15 @@
                             android:textSize="18sp" />
                     </LinearLayout>
 
-                    <!-- Upcoming Class Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#E1E3E4"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Upcoming Class"
-                                android:textColor="#1A1C1C"
-                                android:textSize="16sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:fontFamily="sans-serif"
-                                android:lineSpacingExtra="4dp"
-                                android:text="CS305 - Database Systems starts in 30 minutes at LH-101"
-                                android:textColor="#526966"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Campus Alert Card -->
-                    <com.google.android.material.card.MaterialCardView
+                    <!-- Notifications Container -->
+                    <LinearLayout
+                        android:id="@+id/llHomeNotifications"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="28dp"
-                        app:cardBackgroundColor="#FFF0F0"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="#FFD9D9"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:src="@android:drawable/ic_dialog_alert"
-                                    app:tint="#D32F2F" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Campus Alert"
-                                    android:textColor="#D32F2F"
-                                    android:textSize="16sp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:fontFamily="sans-serif"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Main entrance temporarily closed for maintenance. Use west gate."
-                                android:textColor="#B71C1C"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                        android:orientation="vertical">
+                        <!-- Dynamic notifications will be inflated here -->
+                    </LinearLayout>
 
                     <!-- Upcoming Events Header -->
                     <LinearLayout
@@ -506,5 +428,17 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Slide Out Menu -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#FFFFFF"
+        android:fitsSystemWindows="true"
+        app:itemIconTint="#529F93"
+        app:itemTextColor="#1A1C1C"
+        app:menu="@menu/student_drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

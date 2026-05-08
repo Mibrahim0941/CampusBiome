@@ -20,14 +20,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.ValueEventListener;
 
 public class StudentDashboardActivity extends AppCompatActivity {
 
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
     private ImageView btnLogout, btnMenu;
     private TextView tvWelcomeUser;
     private LinearLayout navHome, navMap, navTimetable, navProfessors, navCommunity;
-    private LinearLayout llEventsContainer;
+    private LinearLayout llEventsContainer, llHomeNotifications;
     private View homeContent;
 
     private FirebaseAuth mAuth;
@@ -47,6 +52,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
             return;
         }
 
+        drawerLayout      = findViewById(R.id.drawer_layout);
+        navView           = findViewById(R.id.nav_view);
         btnLogout         = findViewById(R.id.btnLogout);
         tvWelcomeUser     = findViewById(R.id.tvWelcomeUser);
         btnMenu           = findViewById(R.id.btnMenu);
@@ -57,9 +64,31 @@ public class StudentDashboardActivity extends AppCompatActivity {
         navCommunity      = findViewById(R.id.navCommunity);
         homeContent       = findViewById(R.id.homeContent);
         llEventsContainer = findViewById(R.id.llEventsContainer);
+        llHomeNotifications = findViewById(R.id.llHomeNotifications);
 
-        btnMenu.setOnClickListener(v ->
-                Toast.makeText(this, "Menu - coming soon", Toast.LENGTH_SHORT).show());
+        btnMenu.setOnClickListener(v -> {
+            if (drawerLayout != null) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        if (navView != null) {
+            navView.setNavigationItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_profile) {
+                    openFragment(new StudentProfileFragment());
+                } else if (id == R.id.nav_edit_profile) {
+                    openFragment(new EditStudentProfileFragment());
+                } else if (id == R.id.nav_notifications) {
+                    openFragment(new NotificationsFragment());
+                } else if (id == R.id.nav_logout) {
+                    mAuth.signOut();
+                    goToRoleSelection();
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            });
+        }
 
         navHome.setOnClickListener(v ->      { updateNavSelection(0); showHome(); });
         navMap.setOnClickListener(v ->       { updateNavSelection(1); openFragment(new CampusMapFragment()); });
@@ -76,6 +105,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return;
+                }
                 Fragment current = getSupportFragmentManager()
                         .findFragmentById(R.id.fragment_container);
                 if (current != null) {
@@ -89,9 +122,196 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         fetchUserName(currentUser.getUid());
         fetchEvents();
+        fetchRecentNotifications(currentUser.getUid());
 
         if (savedInstanceState == null) {
             showHome();
+        }
+    }
+
+    private interface AnnouncementsCallback {
+        void onLoaded(java.util.List<NotificationItem> items);
+    }
+
+    private long parseTimestamp(String createdAt, java.text.SimpleDateFormat sdf) {
+        if (createdAt != null) {
+            try {
+                java.util.Date d = sdf.parse(createdAt);
+                if (d != null) return d.getTime();
+            } catch (Exception ignored) {}
+        }
+        return 0;
+    }
+
+    private void fetchAllRelevantAnnouncements(String uid, AnnouncementsCallback callback) {
+        java.util.List<NotificationItem> items = new java.util.ArrayList<>();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US);
+        
+        int[] pendingQueries = {3};
+        Runnable onQueryComplete = () -> {
+            pendingQueries[0]--;
+            if (pendingQueries[0] == 0) {
+                callback.onLoaded(items);
+            }
+        };
+
+        // 1. Admin Announcements
+        mDatabase.child("Admin_announcements").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                if (snap.exists()) {
+                    for (DataSnapshot ds : snap.getChildren()) {
+                        long ts = parseTimestamp(ds.child("createdAt").getValue(String.class), sdf);
+                        items.add(new NotificationItem(
+                            ds.child("title").getValue(String.class),
+                            ds.child("message").getValue(String.class),
+                            "announcement", ts, true));
+                    }
+                }
+                onQueryComplete.run();
+            }
+            @Override public void onCancelled(@NonNull DatabaseError e) { onQueryComplete.run(); }
+        });
+
+        // 2. Society Announcements
+        mDatabase.child("Societies").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                if (snap.exists()) {
+                    for (DataSnapshot ds : snap.getChildren()) {
+                        if (ds.child("members").child(uid).exists()) {
+                            DataSnapshot annSnap = ds.child("announcements");
+                            for (DataSnapshot aDs : annSnap.getChildren()) {
+                                long ts = parseTimestamp(aDs.child("createdAt").getValue(String.class), sdf);
+                                String sName = ds.child("name").getValue(String.class);
+                                items.add(new NotificationItem(
+                                    (sName != null ? sName + ": " : "") + aDs.child("title").getValue(String.class),
+                                    aDs.child("message").getValue(String.class),
+                                    "announcement", ts, true));
+                            }
+                        }
+                    }
+                }
+                onQueryComplete.run();
+            }
+            @Override public void onCancelled(@NonNull DatabaseError e) { onQueryComplete.run(); }
+        });
+
+        // 3. Study Group Announcements
+        mDatabase.child("StudyGroups").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                if (snap.exists()) {
+                    for (DataSnapshot ds : snap.getChildren()) {
+                        if (ds.child("members").child(uid).exists()) {
+                            DataSnapshot annSnap = ds.child("announcements");
+                            for (DataSnapshot aDs : annSnap.getChildren()) {
+                                long ts = parseTimestamp(aDs.child("createdAt").getValue(String.class), sdf);
+                                String gName = ds.child("groupName").getValue(String.class);
+                                items.add(new NotificationItem(
+                                    (gName != null ? gName + ": " : "") + aDs.child("title").getValue(String.class),
+                                    aDs.child("message").getValue(String.class),
+                                    "announcement", ts, true));
+                            }
+                        }
+                    }
+                }
+                onQueryComplete.run();
+            }
+            @Override public void onCancelled(@NonNull DatabaseError e) { onQueryComplete.run(); }
+        });
+    }
+
+    private void fetchRecentNotifications(String uid) {
+        mDatabase.child("Notifications").child(uid).orderByChild("timestamp")
+                .limitToLast(3)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot userNotifsSnapshot) {
+                        fetchAllRelevantAnnouncements(uid, announcementsItems -> {
+                            if (llHomeNotifications == null) return;
+                            llHomeNotifications.removeAllViews();
+                            
+                            java.util.List<NotificationItem> allItems = new java.util.ArrayList<>();
+
+                            // Add user notifications
+                            if (userNotifsSnapshot.exists()) {
+                                for (DataSnapshot ds : userNotifsSnapshot.getChildren()) {
+                                    String title = ds.child("title").getValue(String.class);
+                                    String message = ds.child("message").getValue(String.class);
+                                    String type = ds.child("type").getValue(String.class);
+                                    Long timestamp = ds.child("timestamp").getValue(Long.class);
+                                    if (timestamp != null) {
+                                        allItems.add(new NotificationItem(title, message, type, timestamp, false));
+                                    }
+                                }
+                            }
+
+                            // Add announcements
+                            allItems.addAll(announcementsItems);
+
+                            if (allItems.isEmpty()) {
+                                TextView empty = new TextView(StudentDashboardActivity.this);
+                                empty.setText("No recent notifications");
+                                empty.setTextColor(android.graphics.Color.parseColor("#8F9B99"));
+                                llHomeNotifications.addView(empty);
+                                return;
+                            }
+
+                            // Sort descending
+                            java.util.Collections.sort(allItems, (o1, o2) -> Long.compare(o2.timestamp, o1.timestamp));
+
+                            int count = 0;
+                            for (NotificationItem item : allItems) {
+                                if (count >= 3) break;
+
+                                View card = LayoutInflater.from(StudentDashboardActivity.this)
+                                        .inflate(R.layout.item_notification, llHomeNotifications, false);
+
+                                ImageView icon = card.findViewById(R.id.ivNotifIcon);
+                                TextView tvTitle = card.findViewById(R.id.tvNotifTitle);
+                                TextView tvMessage = card.findViewById(R.id.tvNotifMessage);
+                                TextView tvTime = card.findViewById(R.id.tvNotifTime);
+
+                                tvTitle.setText(item.title != null ? item.title : "Notification");
+                                tvMessage.setText(item.message != null ? item.message : "");
+                                
+                                CharSequence relativeTime = android.text.format.DateUtils.getRelativeTimeSpanString(
+                                        item.timestamp, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS);
+                                tvTime.setText(relativeTime);
+
+                                if ("alert".equals(item.type)) {
+                                    icon.setImageResource(android.R.drawable.ic_dialog_alert);
+                                    icon.setColorFilter(android.graphics.Color.parseColor("#D32F2F"));
+                                    tvTitle.setTextColor(android.graphics.Color.parseColor("#D32F2F"));
+                                } else if (item.isGlobal) {
+                                    icon.setImageResource(android.R.drawable.ic_menu_agenda);
+                                    icon.setColorFilter(android.graphics.Color.parseColor("#1A1C1C"));
+                                }
+
+                                llHomeNotifications.addView(card);
+                                count++;
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+    }
+
+    private static class NotificationItem {
+        String title, message, type;
+        long timestamp;
+        boolean isGlobal;
+
+        NotificationItem(String title, String message, String type, long timestamp, boolean isGlobal) {
+            this.title = title;
+            this.message = message;
+            this.type = type;
+            this.timestamp = timestamp;
+            this.isGlobal = isGlobal;
         }
     }
 
