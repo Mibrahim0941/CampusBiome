@@ -61,18 +61,12 @@ public class FacultyProfileFragment extends Fragment {
         setupItem(itemExp, "Experience", R.drawable.ic_work);
 
         mAuth = FirebaseAuth.getInstance();
-<<<<<<< Updated upstream
-        String currentUid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "fac1";
-        mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(currentUid);
-=======
         if (mAuth.getCurrentUser() != null) {
             facultyId = mAuth.getCurrentUser().getUid();
         } else {
-            facultyId = "unknown"; // Fallback or handle appropriately
+            facultyId = "unknown";
         }
-        
         mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(facultyId);
->>>>>>> Stashed changes
 
         btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
 
