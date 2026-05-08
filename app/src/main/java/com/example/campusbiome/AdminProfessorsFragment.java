@@ -107,7 +107,8 @@ public class AdminProfessorsFragment extends Fragment {
                 for (DataSnapshot facultySnapshot : facultyList) {
                     String name = getString(facultySnapshot, "name");
                     String post = getString(facultySnapshot, "position", "post");
-                    Boolean isAvailable = facultySnapshot.child("available").getValue(Boolean.class);
+                    // Fix: Database field is capitalized "Available"
+                    Boolean isAvailable = facultySnapshot.child("Available").getValue(Boolean.class);
 
                     View row = inflater.inflate(R.layout.item_admin_faculty_row, llFacultyList, false);
                     TextView tvName = row.findViewById(R.id.tvName);
@@ -122,8 +123,9 @@ public class AdminProfessorsFragment extends Fragment {
                         tvName.setTextColor(android.graphics.Color.RED);
                         ivStatus.setVisibility(View.GONE);
                     } else {
+                        // Make sure we show red if explicitly false
                         if (isAvailable != null && !isAvailable) {
-                            ivStatus.setImageTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#BA1A1A")));
+                            ivStatus.setImageTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D32F2F"))); // Bright Red
                         } else {
                             ivStatus.setImageTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.primary)));
                         }
