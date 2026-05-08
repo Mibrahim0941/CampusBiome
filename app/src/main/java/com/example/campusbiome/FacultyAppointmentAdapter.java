@@ -21,6 +21,7 @@ public class FacultyAppointmentAdapter extends RecyclerView.Adapter<FacultyAppoi
     public interface OnAppointmentActionListener {
         void onAccept(FacultyAppointment appointment);
         void onReject(FacultyAppointment appointment);
+        void onClick(FacultyAppointment appointment);
     }
 
     public FacultyAppointmentAdapter(List<FacultyAppointment> appointmentList, OnAppointmentActionListener actionListener) {
@@ -59,6 +60,7 @@ public class FacultyAppointmentAdapter extends RecyclerView.Adapter<FacultyAppoi
 
         holder.btnAccept.setOnClickListener(v -> actionListener.onAccept(appointment));
         holder.btnReject.setOnClickListener(v -> actionListener.onReject(appointment));
+        holder.itemView.setOnClickListener(v -> actionListener.onClick(appointment));
     }
 
     @Override

@@ -6,173 +6,177 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Header Background -->
-    <View
-        android:id="@+id/headerBg"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:background="@color/primary"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent">
 
-    <!-- Profile Avatar Container -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/avatarCard"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="120dp"
-        app:cardCornerRadius="60dp"
-        app:cardElevation="8dp"
-        app:strokeColor="@color/white"
-        app:strokeWidth="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/ivAvatar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_profile"
-            app:tint="@color/primary"
-            android:padding="20dp"
-            android:background="#E6F2ED" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        tools:text="Dr. Jane Doe"
-        android:textColor="@color/textPrimary"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/avatarCard" />
-
-    <TextView
-        android:id="@+id/tvPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        tools:text="Assistant Professor"
-        android:textColor="@color/primary"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvName" />
-
-    <!-- Details Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="32dp"
-        app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toBottomOf="@id/tvPost">
-
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:paddingBottom="32dp">
+
+            <!-- Header Background -->
+            <View
+                android:id="@+id/headerBg"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@drawable/gradient_primary"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Profile Avatar Container -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/avatarCard"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_marginTop="140dp"
+                app:cardCornerRadius="65dp"
+                app:cardElevation="12dp"
+                app:strokeColor="@color/white"
+                app:strokeWidth="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/ivAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/primary"
+                    android:padding="24dp"
+                    android:background="#F0F9F5" />
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
+                android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Personal Details"
-                android:textColor="@color/textPrimary"
+                android:layout_marginTop="16dp"
+                android:text="Dr. Sarah Khan"
+                android:textColor="@color/text_primary"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/avatarCard" />
+
+            <TextView
+                android:id="@+id/tvPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Professor"
+                android:textColor="@color/primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvName" />
 
-            <!-- Email Field -->
+            <!-- Badges Row -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/badgesRow"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPost">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_dialog_email"
-                    app:tint="@color/primary" />
-
-                <LinearLayout
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFyp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
+                    android:layout_marginEnd="8dp"
+                    android:text="FYP Coordinator"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/primary"
+                    app:chipStrokeWidth="0dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Email Address"
-                        android:textSize="12sp"
-                        android:textColor="@color/textSecondary" />
-
-                    <TextView
-                        android:id="@+id/tvEmail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="jane.doe@university.edu"
-                        android:textSize="16sp"
-                        android:textColor="@color/textPrimary"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Department Field -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_sort_by_size"
-                    app:tint="@color/primary" />
-
-                <LinearLayout
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipVisiting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Department"
-                        android:textSize="12sp"
-                        android:textColor="@color/textSecondary" />
-
-                    <TextView
-                        android:id="@+id/tvDepartment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="Computer Science"
-                        android:textSize="16sp"
-                        android:textColor="@color/textPrimary"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:text="Visiting Faculty"
+                    android:textColor="@color/text_primary"
+                    app:chipBackgroundColor="#FFE0B2"
+                    app:chipStrokeWidth="0dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
             </LinearLayout>
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+            <!-- Professional Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardProfessional"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp"
+                app:layout_constraintTop_toBottomOf="@id/badgesRow">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Professional Background"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Email -->
+                    <include layout="@layout/item_profile_detail"
+                        android:id="@+id/itemEmail" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginVertical="12dp" />
+
+                    <!-- Department -->
+                    <include layout="@layout/item_profile_detail"
+                        android:id="@+id/itemDept" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginVertical="12dp" />
+
+                    <!-- Qualification -->
+                    <include layout="@layout/item_profile_detail"
+                        android:id="@+id/itemQual" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginVertical="12dp" />
+
+                    <!-- Experience -->
+                    <include layout="@layout/item_profile_detail"
+                        android:id="@+id/itemExp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditProfile"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="24dp"
+                android:text="Edit Profile Information"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart"
+                app:layout_constraintTop_toBottomOf="@id/cardProfessional" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

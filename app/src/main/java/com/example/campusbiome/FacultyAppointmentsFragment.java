@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,11 @@ public class FacultyAppointmentsFragment extends Fragment {
             public void onReject(FacultyAppointment appointment) {
                 updateAppointmentStatus(appointment, "rejected");
             }
+
+            @Override
+            public void onClick(FacultyAppointment appointment) {
+                showAppointmentDetailsDialog(appointment);
+            }
         });
         rvAppointments.setAdapter(adapter);
 
@@ -86,6 +92,50 @@ public class FacultyAppointmentsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void showAppointmentDetailsDialog(FacultyAppointment appointment) {
+        if (getContext() == null || appointment == null) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_appointment_details, null);
+        
+        TextView tvDescription = dialogView.findViewById(R.id.tvDetailDescription);
+        com.google.android.material.button.MaterialButton btnClose = dialogView.findViewById(R.id.btnClose);
+
+        // Setup items
+        View detailName = dialogView.findViewById(R.id.detailStudentName);
+        View detailId = dialogView.findViewById(R.id.detailStudentId);
+        View detailEmail = dialogView.findViewById(R.id.detailStudentEmail);
+        View detailProgram = dialogView.findViewById(R.id.detailStudentProgram);
+        View detailDateTime = dialogView.findViewById(R.id.detailDateTime);
+
+        setupDetailItem(detailName, "Student Name", appointment.getStudent() != null ? appointment.getStudent().getName() : "N/A", R.drawable.ic_profile);
+        setupDetailItem(detailId, "Student ID", appointment.getStudent() != null ? appointment.getStudent().getUid() : "N/A", R.drawable.ic_id);
+        setupDetailItem(detailEmail, "Email Address", appointment.getStudent() != null ? appointment.getStudent().getEmail() : "N/A", R.drawable.ic_email);
+        setupDetailItem(detailProgram, "Program & Section", 
+            appointment.getStudent() != null ? (appointment.getStudent().getProgram() + " - " + appointment.getStudent().getSection()) : "N/A", 
+            R.drawable.ic_department);
+        
+        setupDetailItem(detailDateTime, "Date & Time", appointment.getCreatedAt(), R.drawable.ic_office_hours);
+
+        tvDescription.setText(appointment.getDescription());
+
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(getContext())
+            .setView(dialogView)
+            .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_dialog_rounded);
+        }
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private void setupDetailItem(View itemView, String label, String value, int iconRes) {
+        ((TextView) itemView.findViewById(R.id.tvLabel)).setText(label);
+        ((TextView) itemView.findViewById(R.id.tvValue)).setText(value);
+        ((android.widget.ImageView) itemView.findViewById(R.id.ivIcon)).setImageResource(iconRes);
     }
 
     private void updateAppointmentStatus(FacultyAppointment appointment, String status) {
