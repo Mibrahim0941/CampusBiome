@@ -40,12 +40,8 @@ public class FacultyOfficeHoursFragment extends Fragment {
     private String currentUid;
     
     private List<String> currentDays = new ArrayList<>();
-<<<<<<< Updated upstream
-    private List<String> currentOfficeHours = new ArrayList<>();
-=======
     private java.util.Map<String, String> officeHoursMap = new java.util.HashMap<>();
     private final String[] ALL_DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
->>>>>>> Stashed changes
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,15 +111,6 @@ public class FacultyOfficeHoursFragment extends Fragment {
                         }
                     }
                     
-<<<<<<< Updated upstream
-                    if (hoursStr != null) {
-                        currentOfficeHours = new ArrayList<>(Arrays.asList(hoursStr.split("\\s*,\\s*")));
-                    } else {
-                        currentOfficeHours = new ArrayList<>();
-                    }
-                    
-                    adapter.updateData(currentDays, currentOfficeHours);
-=======
                     // Sort days for consistent display
                     java.util.Collections.sort(currentDays, (d1, d2) -> {
                         List<String> daysOrder = Arrays.asList(ALL_DAYS);
@@ -131,7 +118,6 @@ public class FacultyOfficeHoursFragment extends Fragment {
                     });
 
                     adapter.updateData(currentDays, officeHoursMap);
->>>>>>> Stashed changes
                 }
             }
 
@@ -142,26 +128,8 @@ public class FacultyOfficeHoursFragment extends Fragment {
         });
     }
 
-<<<<<<< Updated upstream
-    private void removeDay(String dayToRemove) {
-        int index = -1;
-        for (int i = 0; i < currentDays.size(); i++) {
-            if (currentDays.get(i).trim().equalsIgnoreCase(dayToRemove)) {
-                index = i;
-                break;
-            }
-        }
-        if (index != -1) {
-            currentDays.remove(index);
-            if (index < currentOfficeHours.size()) {
-                currentOfficeHours.remove(index);
-            }
-            updateFirebase();
-        }
-=======
     private void updateAvailability(boolean isAvailable) {
         dbRef.child("Available").setValue(isAvailable);
->>>>>>> Stashed changes
     }
 
     private void showAddTimingDialog() {
@@ -173,17 +141,9 @@ public class FacultyOfficeHoursFragment extends Fragment {
                 availableDays.add(day);
             }
         }
-<<<<<<< Updated upstream
-        if (!exists) {
-            currentDays.add(dayToAdd);
-            currentOfficeHours.add("N/A"); // Default timing for new day
-            updateFirebase();
-=======
-
         if (availableDays.isEmpty()) {
             Toast.makeText(getContext(), "All days already have timings assigned", Toast.LENGTH_SHORT).show();
             return;
->>>>>>> Stashed changes
         }
 
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_faculty_timing, null);
@@ -250,29 +210,6 @@ public class FacultyOfficeHoursFragment extends Fragment {
         etStartTime.setText(initialStart);
         etEndTime.setText(initialEnd);
         
-<<<<<<< Updated upstream
-        final EditText etDays = new EditText(getContext());
-        etDays.setHint("Days (e.g. Monday, Wednesday)");
-        etDays.setText(TextUtils.join(", ", currentDays));
-        layout.addView(etDays);
-        
-        final EditText etHours = new EditText(getContext());
-        etHours.setHint("Hours (e.g. 2:00 PM - 4:00 PM)");
-        etHours.setText(TextUtils.join(", ", currentOfficeHours));
-        layout.addView(etHours);
-        
-        builder.setView(layout);
-
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String newDays = etDays.getText().toString();
-            String newHours = etHours.getText().toString();
-            
-            currentDays = new ArrayList<>(Arrays.asList(newDays.split("\\s*,\\s*")));
-            currentOfficeHours = new ArrayList<>(Arrays.asList(newHours.split("\\s*,\\s*")));
-            updateFirebase();
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-=======
         etStartTime.setOnClickListener(v -> showTimePickerDialog(etStartTime));
         etEndTime.setOnClickListener(v -> showTimePickerDialog(etEndTime));
 
@@ -283,7 +220,6 @@ public class FacultyOfficeHoursFragment extends Fragment {
         builder.setPositiveButton("Save", (dialog, which) -> {
             String startTime = etStartTime.getText().toString();
             String endTime = etEndTime.getText().toString();
->>>>>>> Stashed changes
 
             if (TextUtils.isEmpty(startTime) || TextUtils.isEmpty(endTime)) {
                 Toast.makeText(getContext(), "Times cannot be empty", Toast.LENGTH_SHORT).show();
@@ -302,19 +238,6 @@ public class FacultyOfficeHoursFragment extends Fragment {
         dialog.show();
     }
 
-<<<<<<< Updated upstream
-    private void updateFirebase() {
-        String daysStr = TextUtils.join(", ", currentDays);
-        String hoursStr = TextUtils.join(", ", currentOfficeHours);
-        dbRef.child("days").setValue(daysStr);
-        dbRef.child("officeHours").setValue(hoursStr)
-            .addOnSuccessListener(aVoid -> {
-                if (getContext() != null) Toast.makeText(getContext(), "Office hours updated", Toast.LENGTH_SHORT).show();
-            })
-            .addOnFailureListener(e -> {
-                if (getContext() != null) Toast.makeText(getContext(), "Update failed", Toast.LENGTH_SHORT).show();
-            });
-=======
     private void showTimePickerDialog(EditText editText) {
         java.util.Calendar mcurrentTime = java.util.Calendar.getInstance();
         int hour = mcurrentTime.get(java.util.Calendar.HOUR_OF_DAY);
@@ -331,6 +254,5 @@ public class FacultyOfficeHoursFragment extends Fragment {
 
     private void removeDay(String day) {
         dbRef.child("officeHours").child(day).removeValue();
->>>>>>> Stashed changes
     }
 }

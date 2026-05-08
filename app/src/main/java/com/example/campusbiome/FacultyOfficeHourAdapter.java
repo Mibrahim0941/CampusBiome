@@ -16,11 +16,7 @@ import java.util.List;
 public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOfficeHourAdapter.ViewHolder> {
 
     private List<String> days;
-<<<<<<< Updated upstream
-    private List<String> officeHours;
-=======
     private java.util.Map<String, String> officeHoursMap;
->>>>>>> Stashed changes
     private OnOfficeHourActionListener actionListener;
 
     public interface OnOfficeHourActionListener {
@@ -28,21 +24,13 @@ public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOffice
         void onDelete(String day);
     }
 
-<<<<<<< Updated upstream
-    public FacultyOfficeHourAdapter(List<String> days, List<String> officeHours, OnOfficeHourActionListener actionListener) {
-=======
     public FacultyOfficeHourAdapter(List<String> days, java.util.Map<String, String> officeHoursMap, OnOfficeHourActionListener actionListener) {
->>>>>>> Stashed changes
         this.days = days;
         this.officeHoursMap = officeHoursMap;
         this.actionListener = actionListener;
     }
 
-<<<<<<< Updated upstream
-    public void updateData(List<String> newDays, List<String> newOfficeHours) {
-=======
     public void updateData(List<String> newDays, java.util.Map<String, String> newOfficeHoursMap) {
->>>>>>> Stashed changes
         this.days = newDays;
         this.officeHoursMap = newOfficeHoursMap;
         notifyDataSetChanged();
@@ -58,25 +46,11 @@ public class FacultyOfficeHourAdapter extends RecyclerView.Adapter<FacultyOffice
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (days == null || days.isEmpty()) return;
-<<<<<<< Updated upstream
-        String currentDay = days.get(position).trim();
-        String currentHour = "N/A";
-        
-        if (officeHours != null && position < officeHours.size()) {
-            currentHour = officeHours.get(position).trim();
-        }
-
-        holder.tvDay.setText(currentDay);
-        holder.tvTime.setText("• " + currentHour);
-        holder.btnEdit.setText("EDIT");
-        holder.btnDelete.setVisibility(View.VISIBLE);
-=======
         String currentDay = days.get(position);
         String currentTime = officeHoursMap.get(currentDay);
 
         holder.tvDay.setText(currentDay);
         holder.tvTime.setText("• " + (currentTime != null ? currentTime : "Not set"));
->>>>>>> Stashed changes
         
         holder.btnEdit.setOnClickListener(v -> actionListener.onEdit(currentDay, currentTime));
         holder.btnDelete.setOnClickListener(v -> actionListener.onDelete(currentDay));
