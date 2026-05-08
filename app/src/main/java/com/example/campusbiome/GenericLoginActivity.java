@@ -103,30 +103,40 @@ public class GenericLoginActivity extends AppCompatActivity {
     }
 
     private void checkUsersNode(String uid) {
-        mDatabase.child("Users").child(uid).child("role")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        btnLogin.setEnabled(true);
-                        String actualRole = snapshot.getValue(String.class);
+        mDatabase.child("Users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                btnLogin.setEnabled(true);
+                String actualRole = snapshot.child("role").getValue(String.class);
+                String accountStatus = snapshot.child("accountStatus").getValue(String.class);
 
-                        if (actualRole != null && actualRole.equals(role)) {
-                            goToDashboard();
-                        } else {
-                            mAuth.signOut();
-                            Toast.makeText(GenericLoginActivity.this,
-                                    "Access Denied: You are not registered as "
-                                            + rolePrettyName(role),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
+                // 1. Check if account is suspended/disabled
+                if (accountStatus != null && (accountStatus.equals("suspended") || accountStatus.equals("disabled"))) {
+                    mAuth.signOut();
+                    Toast.makeText(GenericLoginActivity.this, 
+                        "Your account has been " + accountStatus + " by the administrator.", 
+                        Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        btnLogin.setEnabled(true);
-                        onFailed(error.getMessage());
-                    }
-                });
+                // 2. Check if role matches
+                if (actualRole != null && actualRole.equals(role)) {
+                    goToDashboard();
+                } else {
+                    mAuth.signOut();
+                    Toast.makeText(GenericLoginActivity.this,
+                            "Access Denied: You are not registered as "
+                                    + rolePrettyName(role),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                btnLogin.setEnabled(true);
+                onFailed(error.getMessage());
+            }
+        });
     }
 
     private void sendPasswordReset() {

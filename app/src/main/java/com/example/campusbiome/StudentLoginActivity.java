@@ -104,10 +104,23 @@ public class StudentLoginActivity extends AppCompatActivity {
 
     private void checkRoleAndNavigate(FirebaseUser user) {
         if (user == null) return;
-        mDatabase.child("Users").child(user.getUid()).child("role").get()
+        mDatabase.child("Users").child(user.getUid()).get()
                 .addOnSuccessListener(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
-                        String role = dataSnapshot.getValue(String.class);
+                        String role = dataSnapshot.child("role").getValue(String.class);
+                        String accountStatus = dataSnapshot.child("accountStatus").getValue(String.class);
+
+                        // 1. Check if account is suspended/disabled
+                        if (accountStatus != null && (accountStatus.equals("suspended") || accountStatus.equals("disabled"))) {
+                            mAuth.signOut();
+                            btnAction.setEnabled(true);
+                            Toast.makeText(this, 
+                                "Your account has been " + accountStatus + " by the administrator.", 
+                                Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        // 2. Check if role is student
                         if ("student".equals(role)) {
                             goToDashboard();
                         } else {
