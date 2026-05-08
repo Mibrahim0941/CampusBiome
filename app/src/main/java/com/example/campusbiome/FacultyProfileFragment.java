@@ -36,7 +36,7 @@ public class FacultyProfileFragment extends Fragment {
     
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-    private String facultyId = "fac1"; // As per request
+    private String facultyId; // Dynamic ID from Auth
 
     @Nullable
     @Override
@@ -61,8 +61,18 @@ public class FacultyProfileFragment extends Fragment {
         setupItem(itemExp, "Experience", R.drawable.ic_work);
 
         mAuth = FirebaseAuth.getInstance();
+<<<<<<< Updated upstream
         String currentUid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "fac1";
         mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(currentUid);
+=======
+        if (mAuth.getCurrentUser() != null) {
+            facultyId = mAuth.getCurrentUser().getUid();
+        } else {
+            facultyId = "unknown"; // Fallback or handle appropriately
+        }
+        
+        mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(facultyId);
+>>>>>>> Stashed changes
 
         btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
 

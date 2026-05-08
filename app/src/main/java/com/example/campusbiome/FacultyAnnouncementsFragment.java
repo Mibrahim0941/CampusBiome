@@ -68,7 +68,7 @@ public class FacultyAnnouncementsFragment extends Fragment {
     }
 
     private void fetchAnnouncements() {
-        dbRef.addValueEventListener(new ValueEventListener() {
+        dbRef.orderByChild("createdby").equalTo(currentUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 announcementList.clear();
@@ -126,7 +126,7 @@ public class FacultyAnnouncementsFragment extends Fragment {
             String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date());
             
             String key = dbRef.push().getKey();
-            FacultyAnnouncement newAnn = new FacultyAnnouncement(title, desc, currentTime);
+            FacultyAnnouncement newAnn = new FacultyAnnouncement(title, desc, currentTime, currentUid);
             if (key != null) {
                 dbRef.child(key).setValue(newAnn)
                     .addOnSuccessListener(aVoid -> {

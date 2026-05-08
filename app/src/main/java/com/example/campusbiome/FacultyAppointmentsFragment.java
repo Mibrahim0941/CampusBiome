@@ -69,8 +69,7 @@ public class FacultyAppointmentsFragment extends Fragment {
     private void fetchAppointments() {
         // We fetch all appointments here for presentation/testing so they show up. 
         // If your database gets updated with correct 'facultyId' in FacultyAppointment, 
-        // you can change this back to: dbRef.orderByChild("facultyId").equalTo(currentUid).addValueEventListener(...)
-        dbRef.addValueEventListener(new ValueEventListener() {
+        dbRef.orderByChild("facultyId").equalTo(currentUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 appointmentList.clear();

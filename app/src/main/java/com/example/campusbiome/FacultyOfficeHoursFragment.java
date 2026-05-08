@@ -75,8 +75,7 @@ public class FacultyOfficeHoursFragment extends Fragment {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            // Using "fac1" as per the data provided in the request
-            dbRef = FirebaseDatabase.getInstance().getReference("Faculty").child("fac1");
+            dbRef = FirebaseDatabase.getInstance().getReference("Faculty").child(currentUid);
             fetchData();
         }
 
