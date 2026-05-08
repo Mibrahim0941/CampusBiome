@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:cardBackgroundColor="#E8F0EE"
+            app:cardBackgroundColor="#F0F9F5"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
             
@@ -49,7 +49,7 @@
                 android:orientation="vertical"
                 android:padding="12dp">
                 
-                <TextView android:id="@+id/tvDetailName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name: Society Name" android:textSize="11sp" android:textColor="#153838" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tvDetailName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name: Society Name" android:textSize="11sp" android:textColor="@color/primary" android:fontFamily="sans-serif-medium" />
                 <TextView android:id="@+id/tvDetailAdmin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Proposed Admin: Name" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="4dp" />
                 <TextView android:id="@+id/tvDetailSpace" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Requested Space: Old Cafe" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="2dp" />
                 <TextView android:id="@+id/tvDetailBudget" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Requested Budget: 50,000 Pkr" android:textSize="11sp" android:textColor="#414848" android:layout_marginTop="2dp" />
@@ -61,7 +61,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="12dp"
                     android:src="@android:drawable/ic_menu_gallery"
-                    app:tint="#153838" />
+                    app:tint="@color/primary" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -78,7 +78,7 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:text="Approve"
-                android:backgroundTint="#153838"
+                android:backgroundTint="@color/primary"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"

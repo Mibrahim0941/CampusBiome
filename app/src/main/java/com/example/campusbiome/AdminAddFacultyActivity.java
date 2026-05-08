@@ -49,23 +49,57 @@ public class AdminAddFacultyActivity extends AppCompatActivity {
             return;
         }
 
-        String facultyId = mDatabase.child("Faculty").push().getKey();
-        if (facultyId == null) return;
+        // Initialize Secondary Firebase for Auth creation with a UNIQUE name per request
+        com.google.firebase.FirebaseOptions options = com.google.firebase.FirebaseApp.getInstance().getOptions();
+        String appName = "Secondary_" + System.currentTimeMillis();
+        com.google.firebase.FirebaseApp tempApp;
+        try {
+            tempApp = com.google.firebase.FirebaseApp.initializeApp(this, options, appName);
+        } catch (Exception e) {
+            tempApp = com.google.firebase.FirebaseApp.getInstance(appName);
+        }
+        final com.google.firebase.FirebaseApp secondaryApp = tempApp;
 
-        Map<String, Object> faculty = new HashMap<>();
-        faculty.put("id", facultyId);
-        faculty.put("name", name);
-        faculty.put("email", email);
-        faculty.put("post", post);
-        faculty.put("department", department);
-        faculty.put("role", "faculty");
-        faculty.put("status", "approved");
+        com.google.firebase.auth.FirebaseAuth secondaryAuth = com.google.firebase.auth.FirebaseAuth.getInstance(secondaryApp);
 
-        mDatabase.child("Faculty").child(facultyId).setValue(faculty)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(AdminAddFacultyActivity.this, "Faculty member added successfully", Toast.LENGTH_SHORT).show();
-                    finish();
+        secondaryAuth.createUserWithEmailAndPassword(email, "123456")
+                .addOnSuccessListener(authResult -> {
+                    String uid = authResult.getUser().getUid();
+                    
+                    // 1. Write to Users node
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("id", uid);
+                    userData.put("name", name);
+                    userData.put("email", email);
+                    userData.put("role", "faculty");
+                    userData.put("status", "approved");
+
+                    mDatabase.child("Users").child(uid).setValue(userData);
+
+                    // 2. Write to Faculty node
+                    Map<String, Object> facultyData = new HashMap<>();
+                    facultyData.put("id", uid);
+                    facultyData.put("name", name);
+                    facultyData.put("email", email);
+                    facultyData.put("post", post);
+                    facultyData.put("department", department);
+                    facultyData.put("role", "faculty");
+                    facultyData.put("status", "approved");
+
+                    mDatabase.child("Faculty").child(uid).setValue(facultyData)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(AdminAddFacultyActivity.this, "Faculty account created with password: 123456", Toast.LENGTH_LONG).show();
+                                secondaryApp.delete();
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(AdminAddFacultyActivity.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                secondaryApp.delete();
+                            });
                 })
-                .addOnFailureListener(e -> Toast.makeText(AdminAddFacultyActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AdminAddFacultyActivity.this, "Auth Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    secondaryApp.delete();
+                });
     }
 }

@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class AdminAddStudentActivity extends AppCompatActivity {
 
-    private EditText etName, etEmail, etSemester, etSection, etRollNo;
+    private EditText etName, etEmail, etSemester, etSection, etRollNo, etExtracurricular;
     private MaterialCardView btnSave;
     private DatabaseReference mDatabase;
 
@@ -32,6 +32,7 @@ public class AdminAddStudentActivity extends AppCompatActivity {
         etSemester = findViewById(R.id.etSemester);
         etSection = findViewById(R.id.etSection);
         etRollNo = findViewById(R.id.etRollNo);
+        etExtracurricular = findViewById(R.id.etExtracurricular);
         btnSave = findViewById(R.id.btnSave);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
@@ -45,6 +46,7 @@ public class AdminAddStudentActivity extends AppCompatActivity {
         String semester = etSemester.getText().toString().trim();
         String section = etSection.getText().toString().trim();
         String rollNo = etRollNo.getText().toString().trim();
+        String extracurricular = etExtracurricular.getText().toString().trim();
 
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(rollNo)) {
             Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
@@ -60,6 +62,7 @@ public class AdminAddStudentActivity extends AppCompatActivity {
         user.put("semester", semester);
         user.put("section", section);
         user.put("rollNo", rollNo);
+        user.put("extracurricular", extracurricular);
         user.put("role", "student");
         user.put("status", "approved");
 

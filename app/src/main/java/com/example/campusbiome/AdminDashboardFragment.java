@@ -22,7 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class AdminDashboardFragment extends Fragment {
 
-    private TextView tvTotalStudents, tvDefaulters, tvOffenders;
+    private TextView tvTotalStudents, tvDefaulters;
     private TextView tvTotalStaff, tvVisiting, tvLabInstructors;
     private TextView tvTotalSocieties, tvPendingSocieties;
     private MaterialCardView btnShowStudentsCard, btnManageFacultyCard, btnManageSocietiesCard;
@@ -39,7 +39,7 @@ public class AdminDashboardFragment extends Fragment {
 
         tvTotalStudents = view.findViewById(R.id.tvTotalStudents);
         tvDefaulters = view.findViewById(R.id.tvDefaulters);
-        tvOffenders = view.findViewById(R.id.tvOffenders);
+
         
         tvTotalStaff = view.findViewById(R.id.tvTotalStaff);
         tvVisiting = view.findViewById(R.id.tvVisiting);
@@ -73,7 +73,7 @@ public class AdminDashboardFragment extends Fragment {
             }
         });
 
-        btnNewAnnouncement.setOnClickListener(v -> Toast.makeText(getContext(), "New Announcement Feature", Toast.LENGTH_SHORT).show());
+        btnNewAnnouncement.setOnClickListener(v -> showAnnouncementDialog());
         btnManageEvents.setOnClickListener(v -> Toast.makeText(getContext(), "Manage Events Feature", Toast.LENGTH_SHORT).show());
         btnSeeCampusMap.setOnClickListener(v -> {
              Toast.makeText(getContext(), "See Campus Map Feature", Toast.LENGTH_SHORT).show();
@@ -85,32 +85,29 @@ public class AdminDashboardFragment extends Fragment {
     }
 
     private void fetchStats() {
-        // Fetch Students from Users node
+        // 1. Fetch Students & Defaulters from Users node
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
                 
-                int students = 0;
-                int defaulters = 0;
-                int offenders = 0;
-
-                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    String role = userSnapshot.child("role").getValue(String.class);
+                long totalStudents = 0;
+                long defaulters = 0;
+                for (DataSnapshot userSnap : snapshot.getChildren()) {
+                    String role = userSnap.child("role").getValue(String.class);
                     if ("student".equals(role)) {
-                        students++;
-                        Boolean isDefaulter = userSnapshot.child("isDefaulter").getValue(Boolean.class);
-                        if (isDefaulter != null && isDefaulter) defaulters++;
-                        Boolean isOffender = userSnapshot.child("isOffender").getValue(Boolean.class);
-                        if (isOffender != null && isOffender) offenders++;
+                        String status = userSnap.child("accountStatus").getValue(String.class);
+                        if ("disabled".equals(status)) {
+                            defaulters++;
+                        } else {
+                            totalStudents++;
+                        }
                     }
                 }
-                tvTotalStudents.setText(String.valueOf(students));
+                tvTotalStudents.setText(String.valueOf(totalStudents));
                 tvDefaulters.setText(String.valueOf(defaulters));
-                tvOffenders.setText(String.valueOf(offenders));
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
 
         // Fetch Faculty from Faculty node
@@ -137,7 +134,11 @@ public class AdminDashboardFragment extends Fragment {
                 tvLabInstructors.setText(String.valueOf(labInstructors));
             }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error loading faculty: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         mDatabase.child("Societies").addValueEventListener(new ValueEventListener() {
@@ -160,7 +161,65 @@ public class AdminDashboardFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error loading societies: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
+    }
+
+    private void showAnnouncementDialog() {
+        if (getContext() == null) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_announcement, null);
+        com.google.android.material.textfield.TextInputEditText etTitle = dialogView.findViewById(R.id.etTitle);
+        com.google.android.material.textfield.TextInputEditText etContent = dialogView.findViewById(R.id.etContent);
+        android.widget.RadioGroup rgTarget = dialogView.findViewById(R.id.rgTarget);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_dialog_rounded);
+        }
+
+        dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
+
+        dialogView.findViewById(R.id.btnPost).setOnClickListener(v -> {
+            String title = etTitle.getText().toString().trim();
+            String content = etContent.getText().toString().trim();
+            String target = "all";
+
+            int checkedId = rgTarget.getCheckedRadioButtonId();
+            if (checkedId == R.id.rbStudents) target = "students";
+            else if (checkedId == R.id.rbFaculty) target = "faculty";
+
+            if (title.isEmpty() || content.isEmpty()) {
+                Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String id = mDatabase.child("Announcements").push().getKey();
+            java.util.Map<String, Object> announcement = new java.util.HashMap<>();
+            announcement.put("id", id);
+            announcement.put("title", title);
+            announcement.put("content", content);
+            announcement.put("target", target);
+            announcement.put("postedBy", "Admin");
+            announcement.put("timestamp", System.currentTimeMillis());
+
+            if (id != null) {
+                mDatabase.child("Announcements").child(id).setValue(announcement)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Announcement Posted", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        });
+
+        dialog.show();
     }
 }

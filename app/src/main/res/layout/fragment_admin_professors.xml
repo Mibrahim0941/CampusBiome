@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
                     android:text="Faculty Management"
-                    android:textColor="#153838"
+                    android:textColor="@color/primary"
                     android:textSize="22sp" />
             </LinearLayout>
 
@@ -57,7 +57,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#E8F0EE"
+                        android:background="#F0F9F5"
                         android:orientation="horizontal"
                         android:paddingVertical="14dp"
                         android:paddingHorizontal="12dp">
@@ -67,7 +67,7 @@
                             android:layout_weight="1.5"
                             android:fontFamily="sans-serif-black"
                             android:text="NAME"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:letterSpacing="0.05" />
                         <TextView
@@ -76,7 +76,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-black"
                             android:text="STATUS"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:gravity="center"
                             android:letterSpacing="0.05" />
@@ -86,7 +86,7 @@
                             android:layout_weight="1.5"
                             android:fontFamily="sans-serif-black"
                             android:text="POST"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:gravity="end"
                             android:letterSpacing="0.05" />
@@ -103,7 +103,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E8F0EE" />
+                        android:background="#F0F9F5" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -124,7 +124,7 @@
                 android:layout_marginBottom="12dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Pending Approvals"
-                android:textColor="#153838"
+                android:textColor="@color/primary"
                 android:textSize="16sp" />
 
             <!-- Pending Approvals Container -->
@@ -144,7 +144,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#153838"
+                app:cardBackgroundColor="@color/primary"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
                 <TextView

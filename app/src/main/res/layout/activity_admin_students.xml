@@ -24,7 +24,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="4dp"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#153838" />
+            app:tint="@color/primary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -47,20 +47,14 @@
                 android:textSize="18sp" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/btnLogout"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_lock_power_off"
-            app:tint="#153838" />
+
     </LinearLayout>
 
     <View
         android:id="@+id/topBarDivider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#E8F0EE"
+        android:background="#F0F9F5"
         app:layout_constraintTop_toBottomOf="@id/topBar" />
 
     <androidx.core.widget.NestedScrollView
@@ -82,7 +76,7 @@
                 android:layout_marginBottom="16dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Academic Records"
-                android:textColor="#153838"
+                android:textColor="@color/primary"
                 android:textSize="18sp" />
 
             <!-- Student Table Card -->
@@ -105,7 +99,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#E8F0EE"
+                        android:background="#F0F9F5"
                         android:orientation="horizontal"
                         android:paddingVertical="14dp"
                         android:paddingHorizontal="12dp">
@@ -115,7 +109,7 @@
                             android:layout_weight="1.2"
                             android:fontFamily="sans-serif-black"
                             android:text="NAME"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:letterSpacing="0.05" />
                         <TextView
@@ -124,7 +118,7 @@
                             android:layout_weight="0.8"
                             android:fontFamily="sans-serif-black"
                             android:text="SEM"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:gravity="center"
                             android:letterSpacing="0.05" />
@@ -134,7 +128,7 @@
                             android:layout_weight="1"
                             android:fontFamily="sans-serif-black"
                             android:text="ROLL NO"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:gravity="center"
                             android:letterSpacing="0.05" />
@@ -144,7 +138,7 @@
                             android:layout_weight="0.8"
                             android:fontFamily="sans-serif-black"
                             android:text="SEC"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="12sp"
                             android:gravity="end"
                             android:letterSpacing="0.05" />
@@ -162,146 +156,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Society Roles Section Title -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="sans-serif-bold"
-                android:text="Extracurricular Roles"
-                android:textColor="#153838"
-                android:textSize="18sp" />
 
-            <!-- Society Roles Table Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#C1C8C7"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Table Header -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="#E8F0EE"
-                        android:orientation="horizontal"
-                        android:paddingVertical="14dp"
-                        android:paddingHorizontal="12dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.2"
-                            android:fontFamily="sans-serif-black"
-                            android:text="NAME"
-                            android:textColor="#153838"
-                            android:textSize="12sp"
-                            android:letterSpacing="0.05" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="sans-serif-black"
-                            android:text="ROLL NO"
-                            android:textColor="#153838"
-                            android:textSize="12sp"
-                            android:gravity="center"
-                            android:letterSpacing="0.05" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="sans-serif-black"
-                            android:text="SOCIETY"
-                            android:textColor="#153838"
-                            android:textSize="12sp"
-                            android:gravity="center"
-                            android:letterSpacing="0.05" />
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.8"
-                            android:fontFamily="sans-serif-black"
-                            android:text="ROLE"
-                            android:textColor="#153838"
-                            android:textSize="12sp"
-                            android:gravity="end"
-                            android:letterSpacing="0.05" />
-                    </LinearLayout>
-
-                    <!-- Society Roles List Container -->
-                    <LinearLayout
-                        android:id="@+id/llSocietyRolesList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:divider="@drawable/divider_line"
-                        android:showDividers="middle" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Society Admin Action -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnManageSocietyAdmins"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#153838"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="Manage Society Admins"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Society Admin List -->
-            <LinearLayout
-                android:id="@+id/llSocietyAdminList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-            <!-- Add Student Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnAddStudent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#153838"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="+ Add New Student Record"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-black" />
-            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

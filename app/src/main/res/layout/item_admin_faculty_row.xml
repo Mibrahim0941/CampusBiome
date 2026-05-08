@@ -16,7 +16,7 @@
         android:layout_weight="1.5"
         android:fontFamily="sans-serif-bold"
         android:text="Name"
-        android:textColor="#153838"
+        android:textColor="#191C1D"
         android:textSize="14sp" />
 
     <ImageView
@@ -25,7 +25,7 @@
         android:layout_height="10dp"
         android:layout_marginHorizontal="8dp"
         android:src="@android:drawable/presence_online"
-        app:tint="#153838" />
+        app:tint="@color/primary" />
 
     <TextView
         android:id="@+id/tvPost"
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:text="Lecturer"
-        android:textColor="#414848"
+        android:textColor="#191C1D"
         android:fontFamily="sans-serif-medium"
         android:textSize="13sp"
         android:gravity="end" />

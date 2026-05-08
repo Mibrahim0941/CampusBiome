@@ -48,7 +48,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:text="Process"
-                android:buttonTint="#153838"
+                android:buttonTint="@color/primary"
                 android:textColor="#191C1D"
                 android:textSize="12sp" />
         </RelativeLayout>
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="12dp"
-            android:background="#E8F0EE"
+            android:background="#F0F9F5"
             android:padding="16dp"
             android:visibility="gone">
 
@@ -68,12 +68,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Review credentials"
-                android:textColor="#153838"
+                android:textColor="@color/primary"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 android:drawableEnd="@android:drawable/ic_menu_agenda"
                 android:drawablePadding="8dp"
-                app:drawableTint="#153838" />
+                app:drawableTint="@color/primary" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -111,14 +111,14 @@
                     android:id="@+id/cbOffer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="#153838"
+                    android:buttonTint="@color/primary"
                     android:checked="true" />
                 <View
                     android:layout_width="8dp"
                     android:layout_height="8dp"
                     android:layout_marginStart="8dp"
                     android:background="@android:drawable/presence_online"
-                    android:backgroundTint="#153838" />
+                    android:backgroundTint="@color/primary" />
             </LinearLayout>
 
             <LinearLayout
@@ -133,7 +133,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Approve"
-                    android:backgroundTint="#153838"
+                    android:backgroundTint="@color/primary"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif-medium"

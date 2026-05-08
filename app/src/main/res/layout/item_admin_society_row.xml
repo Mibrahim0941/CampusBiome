@@ -23,7 +23,7 @@
             android:src="@android:drawable/ic_menu_gallery"
             android:scaleType="centerCrop"
             android:padding="4dp"
-            app:tint="#153838" />
+            app:tint="@color/primary" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
@@ -34,7 +34,7 @@
         android:layout_marginStart="14dp"
         android:fontFamily="sans-serif-bold"
         android:text="DramaF"
-        android:textColor="#153838"
+        android:textColor="#191C1D"
         android:textSize="14sp" />
 
     <TextView
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:text="Nauman Ijaz"
-        android:textColor="#414848"
+        android:textColor="#191C1D"
         android:fontFamily="sans-serif-medium"
         android:textSize="13sp"
         android:gravity="end" />

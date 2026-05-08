@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFA"
+    android:background="@color/background"
     android:clipToPadding="false"
     android:paddingBottom="24dp">
 
@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="System Management Overview"
-            android:textColor="#717878"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:layout_marginBottom="20dp"/>
 
@@ -26,9 +26,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#E8F0EE"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,18 +42,18 @@
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:src="@android:drawable/ic_menu_edit"
-                        app:tint="#153838" />
+                        android:src="@drawable/ic_student"
+                        app:tint="@color/primary" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:background="#DDE4E3"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="2dp"
+                        android:background="#E6F2ED"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
                         android:text="STUDENTS"
-                        android:textColor="#414848"
-                        android:textSize="10sp"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
                         android:fontFamily="sans-serif-black" />
                 </RelativeLayout>
 
@@ -64,27 +64,24 @@
                     android:orientation="vertical">
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Students" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvTotalStudents" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#153838" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Students" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvTotalStudents" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defaulters" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvDefaulters" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#BA1A1A" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Defaulters" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvDefaulters" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/error" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
-                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="18dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DC Offenders" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvOffenders" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#153838" android:textSize="18sp" android:fontFamily="sans-serif-black" />
-                    </RelativeLayout>
+
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnShowStudentsCard"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardBackgroundColor="#F0F9F5"
                         app:cardCornerRadius="14dp"
-                        app:cardElevation="2dp"
+                        app:cardElevation="0dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
@@ -93,7 +90,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:text="SHOW ALL STUDENTS"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="14sp"
                             android:letterSpacing="0.05"
                             android:fontFamily="sans-serif-black" />
@@ -108,9 +105,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#E8F0EE"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -124,17 +121,17 @@
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        app:tint="#153838" />
+                        android:src="@drawable/ic_department"
+                        app:tint="@color/primary" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:background="#DDE4E3"
+                        android:background="#E6F2ED"
                         android:paddingHorizontal="10dp"
                         android:paddingVertical="4dp"
                         android:text="FACULTY"
-                        android:textColor="#153838"
+                        android:textColor="@color/primary"
                         android:textSize="11sp"
                         android:fontFamily="sans-serif-black" />
                 </RelativeLayout>
@@ -146,27 +143,27 @@
                     android:orientation="vertical">
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Staff" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvTotalStaff" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#153838" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Staff" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvTotalStaff" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Visiting" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvVisiting" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#153838" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Visiting" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvVisiting" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="18dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lab Instructors" android:textColor="#153838" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvLabInstructors" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="#153838" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lab Instructors" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvLabInstructors" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnManageFacultyCard"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardBackgroundColor="#F0F9F5"
                         app:cardCornerRadius="14dp"
-                        app:cardElevation="2dp"
+                        app:cardElevation="0dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
@@ -175,7 +172,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:text="MANAGE FACULTY"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="14sp"
                             android:letterSpacing="0.05"
                             android:fontFamily="sans-serif-black" />
@@ -194,8 +191,8 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
-            app:cardBackgroundColor="#153838"
-            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="@color/primary"
+            app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
             <LinearLayout
@@ -224,9 +221,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -235,8 +232,8 @@
                 android:padding="16dp">
 
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_share" app:tint="#414848" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Societies" android:textColor="#414848" android:textSize="14sp" android:fontFamily="sans-serif-medium" />
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_societies" app:tint="@color/primary" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Societies" android:textColor="@color/text_primary" android:textSize="14sp" android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -249,12 +246,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="6dp"
-                        app:cardBackgroundColor="#F1F5F4"
+                        app:cardBackgroundColor="#F0F9F5"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="0dp">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Created" android:textColor="#717878" android:textSize="11sp" />
-                            <TextView android:id="@+id/tvTotalSocieties" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="30" android:textColor="#191C1D" android:textSize="16sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Created" android:textColor="@color/text_secondary" android:textSize="11sp" />
+                            <TextView android:id="@+id/tvTotalSocieties" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="30" android:textColor="@color/text_primary" android:textSize="16sp" android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -263,12 +260,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="6dp"
-                        app:cardBackgroundColor="#F1F5F4"
+                        app:cardBackgroundColor="#F0F9F5"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="0dp">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending Approvals" android:textColor="#717878" android:textSize="11sp" />
-                            <TextView android:id="@+id/tvPendingSocieties" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="5" android:textColor="#BA1A1A" android:textSize="16sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pending Approvals" android:textColor="@color/text_secondary" android:textSize="11sp" />
+                            <TextView android:id="@+id/tvPendingSocieties" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="5" android:textColor="@color/error" android:textSize="16sp" android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -278,7 +275,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
-                    app:cardBackgroundColor="#E8F0EE"
+                    app:cardBackgroundColor="#F0F9F5"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     android:clickable="true"
@@ -289,9 +286,9 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="Manage Societies"
-                        android:textColor="#153838"
+                        android:textColor="@color/primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="sans-serif-black" />
                 </com.google.android.material.card.MaterialCardView>
                 <Button android:id="@+id/btnManageSocieties" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
 
@@ -307,9 +304,9 @@
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
-            app:cardBackgroundColor="#F1F5F4"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -320,10 +317,10 @@
                     android:id="@+id/ivEventIcon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="#DDE4E3"
+                    android:background="#F0F9F5"
                     android:padding="8dp"
                     android:src="@android:drawable/ic_menu_today"
-                    app:tint="#153838" />
+                    app:tint="@color/primary" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -353,7 +350,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:src="@android:drawable/ic_media_play"
-                    app:tint="#717878" />
+                    app:tint="@color/text_secondary" />
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -385,15 +382,15 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_dialog_map"
-                    app:tint="#153838" />
+                    android:src="@drawable/ic_location"
+                    app:tint="@color/primary" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="sans-serif-bold"
                     android:text="See Campus Map"
-                    android:textColor="#153838"
+                    android:textColor="@color/primary"
                     android:textSize="16sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

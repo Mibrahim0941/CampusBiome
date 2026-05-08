@@ -1,12 +1,14 @@
 package com.example.campusbiome;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,15 +86,50 @@ public class AdminProfessorsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
                 llFacultyList.removeAllViews();
-                LayoutInflater inflater = LayoutInflater.from(getContext());
+                java.util.List<DataSnapshot> activeFaculty = new java.util.ArrayList<>();
+                java.util.List<DataSnapshot> suspendedFaculty = new java.util.ArrayList<>();
 
                 for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
-                    String name = facultySnapshot.child("name").getValue(String.class);
-                    String post = facultySnapshot.child("post").getValue(String.class);
+                    String status = facultySnapshot.child("accountStatus").getValue(String.class);
+                    if ("suspended".equals(status)) {
+                        suspendedFaculty.add(facultySnapshot);
+                    } else {
+                        activeFaculty.add(facultySnapshot);
+                    }
+                }
+
+                addFacultyToLayout(activeFaculty, false);
+                addFacultyToLayout(suspendedFaculty, true);
+            }
+
+            private void addFacultyToLayout(java.util.List<DataSnapshot> facultyList, boolean isSuspended) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                for (DataSnapshot facultySnapshot : facultyList) {
+                    String name = getString(facultySnapshot, "name");
+                    String post = getString(facultySnapshot, "position", "post");
+                    Boolean isAvailable = facultySnapshot.child("available").getValue(Boolean.class);
 
                     View row = inflater.inflate(R.layout.item_admin_faculty_row, llFacultyList, false);
-                    ((TextView) row.findViewById(R.id.tvName)).setText(name != null ? name : "N/A");
-                    ((TextView) row.findViewById(R.id.tvPost)).setText(post != null ? post : "Lecturer");
+                    TextView tvName = row.findViewById(R.id.tvName);
+                    TextView tvPost = row.findViewById(R.id.tvPost);
+                    ImageView ivStatus = row.findViewById(R.id.ivStatus);
+
+                    tvName.setText(name);
+                    tvPost.setText(post);
+                    
+                    if (isSuspended) {
+                        row.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE")); // Light Red
+                        tvName.setTextColor(android.graphics.Color.RED);
+                        ivStatus.setVisibility(View.GONE);
+                    } else {
+                        if (isAvailable != null && !isAvailable) {
+                            ivStatus.setImageTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#BA1A1A")));
+                        } else {
+                            ivStatus.setImageTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.primary)));
+                        }
+                    }
+
+                    row.setOnClickListener(v -> showFacultyDetailsDialog(facultySnapshot));
                     llFacultyList.addView(row);
                 }
             }
@@ -162,5 +199,88 @@ public class AdminProfessorsFragment extends Fragment {
                 if (isAdded()) Toast.makeText(getContext(), "Error fetching pending approvals", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showFacultyDetailsDialog(DataSnapshot facultySnapshot) {
+        if (getContext() == null) return;
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_details, null);
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        LinearLayout llContainer = dialogView.findViewById(R.id.llDetailsContainer);
+        com.google.android.material.button.MaterialButton btnAction = dialogView.findViewById(R.id.btnPrimaryAction);
+        com.google.android.material.button.MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        tvTitle.setText("Faculty Profile");
+        String status = facultySnapshot.child("accountStatus").getValue(String.class);
+        boolean isSuspended = "suspended".equals(status);
+
+        if (isSuspended) {
+            btnAction.setText("Unsuspend Faculty");
+        } else {
+            btnAction.setText("Suspend Faculty");
+        }
+
+        addDetailRow(llContainer, "Name", getString(facultySnapshot, "name"));
+        addDetailRow(llContainer, "Email", getString(facultySnapshot, "email"));
+        addDetailRow(llContainer, "Post", getString(facultySnapshot, "position", "post"));
+        addDetailRow(llContainer, "Department", getString(facultySnapshot, "department"));
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_dialog_rounded);
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnAction.setOnClickListener(v -> {
+            String uid = facultySnapshot.getKey();
+            if (uid != null) {
+                if (isSuspended) {
+                    // Unsuspend: Remove accountStatus from both
+                    mDatabase.child("Faculty").child(uid).child("accountStatus").removeValue();
+                    mDatabase.child("Users").child(uid).child("accountStatus").removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Faculty Unsuspended Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                fetchFaculty();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to unsuspend: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                } else {
+                    // Soft Suspend
+                    mDatabase.child("Faculty").child(uid).child("accountStatus").setValue("suspended");
+                    mDatabase.child("Users").child(uid).child("accountStatus").setValue("suspended")
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Faculty Suspended Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                fetchFaculty();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to suspend: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            } else {
+                Toast.makeText(getContext(), "Error: UID is null", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private String getString(DataSnapshot snapshot, String... keys) {
+        for (String key : keys) {
+            Object val = snapshot.child(key).getValue();
+            if (val != null) return String.valueOf(val);
+        }
+        return "null";
+    }
+
+    private void addDetailRow(LinearLayout container, String label, String value) {
+        if (getContext() == null) return;
+        TextView tv = new TextView(getContext());
+        tv.setText(label + ": " + (value != null ? value : "null"));
+        tv.setTextSize(16);
+        tv.setTextColor(android.graphics.Color.parseColor("#191C1D"));
+        tv.setPadding(0, 0, 0, 20);
+        container.addView(tv);
     }
 }

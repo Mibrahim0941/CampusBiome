@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
                     android:text="Societies Management"
-                    android:textColor="#153838"
+                    android:textColor="@color/primary"
                     android:textSize="22sp" />
             </LinearLayout>
 
@@ -57,7 +57,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#E8F0EE"
+                        android:background="#F0F9F5"
                         android:orientation="horizontal"
                         android:paddingVertical="14dp"
                         android:paddingHorizontal="12dp">
@@ -67,7 +67,7 @@
                             android:layout_weight="1.5"
                             android:fontFamily="sans-serif-black"
                             android:text="SOCIETY NAME"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="13sp"
                             android:letterSpacing="0.05" />
                         <TextView
@@ -76,7 +76,7 @@
                             android:layout_weight="1.5"
                             android:fontFamily="sans-serif-black"
                             android:text="ADMIN"
-                            android:textColor="#153838"
+                            android:textColor="@color/primary"
                             android:textSize="13sp"
                             android:gravity="end"
                             android:letterSpacing="0.05" />
@@ -93,7 +93,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E8F0EE" />
+                        android:background="#F0F9F5" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -114,7 +114,7 @@
                 android:layout_marginBottom="12dp"
                 android:fontFamily="sans-serif-bold"
                 android:text="Pending Approvals"
-                android:textColor="#153838"
+                android:textColor="@color/primary"
                 android:textSize="16sp" />
 
             <!-- Pending Approvals Container -->
@@ -124,29 +124,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
-            <!-- Add Society Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnAddSociety"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="#153838"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="+ Register New Society"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp"
-                    android:fontFamily="sans-serif-black" />
-            </com.google.android.material.card.MaterialCardView>
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

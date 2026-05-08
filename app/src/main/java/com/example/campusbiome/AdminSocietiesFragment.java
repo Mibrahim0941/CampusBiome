@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,10 +33,7 @@ public class AdminSocietiesFragment extends Fragment {
         llSocietiesList = view.findViewById(R.id.llSocietiesList);
         llPendingSocieties = view.findViewById(R.id.llPendingSocieties);
 
-        view.findViewById(R.id.btnAddSociety).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(getActivity(), AdminAddSocietyActivity.class);
-            startActivity(intent);
-        });
+
 
         fetchSocieties();
         return view;
@@ -48,46 +46,84 @@ public class AdminSocietiesFragment extends Fragment {
                 if (!isAdded()) return;
                 llSocietiesList.removeAllViews();
                 llPendingSocieties.removeAllViews();
-                LayoutInflater inflater = LayoutInflater.from(getContext());
+                
+                java.util.List<DataSnapshot> activeSocieties = new java.util.ArrayList<>();
+                java.util.List<DataSnapshot> suspendedSocieties = new java.util.ArrayList<>();
+                java.util.List<DataSnapshot> pendingSocieties = new java.util.ArrayList<>();
 
                 for (DataSnapshot societySnapshot : snapshot.getChildren()) {
+                    String status = societySnapshot.child("status").getValue(String.class);
+                    String accStatus = societySnapshot.child("accountStatus").getValue(String.class);
+                    
+                    if ("suspended".equals(accStatus)) {
+                        suspendedSocieties.add(societySnapshot);
+                    } else if ("approved".equals(status)) {
+                        activeSocieties.add(societySnapshot);
+                    } else if ("pending".equals(status)) {
+                        pendingSocieties.add(societySnapshot);
+                    }
+                }
+
+                addSocietiesToLayout(activeSocieties, false);
+                addSocietiesToLayout(suspendedSocieties, true);
+                addPendingSocietiesToLayout(pendingSocieties);
+            }
+
+            private void addSocietiesToLayout(java.util.List<DataSnapshot> societies, boolean isSuspended) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                for (DataSnapshot societySnapshot : societies) {
                     String name = societySnapshot.child("name").getValue(String.class);
                     String admin = societySnapshot.child("adminName").getValue(String.class);
-                    String status = societySnapshot.child("status").getValue(String.class);
-                    String proposedBy = societySnapshot.child("proposedBy").getValue(String.class);
 
-                    if ("approved".equals(status)) {
-                        View row = inflater.inflate(R.layout.item_admin_society_row, llSocietiesList, false);
-                        ((TextView) row.findViewById(R.id.tvName)).setText(name != null ? name : "N/A");
-                        ((TextView) row.findViewById(R.id.tvAdmin)).setText(admin != null ? admin : "N/A");
-                        llSocietiesList.addView(row);
-                    } else if ("pending".equals(status)) {
-                        View card = inflater.inflate(R.layout.item_admin_society_approval, llPendingSocieties, false);
-                        String societyId = societySnapshot.getKey();
-                        ((TextView) card.findViewById(R.id.tvSocietyName)).setText(name != null ? name : "N/A");
-                        ((TextView) card.findViewById(R.id.tvProposedBy)).setText("Proposed by: " + (proposedBy != null ? proposedBy : "Student"));
-                        
-                        ((TextView) card.findViewById(R.id.tvDetailName)).setText("Name: " + name);
-                        ((TextView) card.findViewById(R.id.tvDetailAdmin)).setText("Proposed Admin: " + admin);
+                    View row = inflater.inflate(R.layout.item_admin_society_row, llSocietiesList, false);
+                    TextView tvName = row.findViewById(R.id.tvName);
+                    TextView tvAdmin = row.findViewById(R.id.tvAdmin);
 
-                        card.findViewById(R.id.btnAccept).setOnClickListener(v -> {
-                            mDatabase.child("Societies").child(societyId).child("status").setValue("approved")
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), name + " Approved", Toast.LENGTH_SHORT).show();
-                                    fetchSocieties();
-                                });
-                        });
+                    tvName.setText(name != null ? name : "N/A");
+                    tvAdmin.setText(admin != null ? admin : "N/A");
 
-                        card.findViewById(R.id.btnReject).setOnClickListener(v -> {
-                            mDatabase.child("Societies").child(societyId).child("status").setValue("rejected")
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), name + " Rejected", Toast.LENGTH_SHORT).show();
-                                    fetchSocieties();
-                                });
-                        });
-                        
-                        llPendingSocieties.addView(card);
+                    if (isSuspended) {
+                        row.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE")); // Light Red
+                        tvName.setTextColor(android.graphics.Color.RED);
                     }
+
+                    row.setOnClickListener(v -> showSocietyDetailsDialog(societySnapshot));
+                    llSocietiesList.addView(row);
+                }
+            }
+
+            private void addPendingSocietiesToLayout(java.util.List<DataSnapshot> pendingList) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                for (DataSnapshot societySnapshot : pendingList) {
+                    String name = societySnapshot.child("name").getValue(String.class);
+                    String admin = societySnapshot.child("adminName").getValue(String.class);
+                    String proposedBy = societySnapshot.child("proposedBy").getValue(String.class);
+                    String societyId = societySnapshot.getKey();
+
+                    View card = inflater.inflate(R.layout.item_admin_society_approval, llPendingSocieties, false);
+                    ((TextView) card.findViewById(R.id.tvSocietyName)).setText(name != null ? name : "N/A");
+                    ((TextView) card.findViewById(R.id.tvProposedBy)).setText("Proposed by: " + (proposedBy != null ? proposedBy : "Student"));
+                    
+                    ((TextView) card.findViewById(R.id.tvDetailName)).setText("Name: " + name);
+                    ((TextView) card.findViewById(R.id.tvDetailAdmin)).setText("Proposed Admin: " + admin);
+
+                    card.findViewById(R.id.btnAccept).setOnClickListener(v -> {
+                        mDatabase.child("Societies").child(societyId).child("status").setValue("approved")
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), name + " Approved", Toast.LENGTH_SHORT).show();
+                                fetchSocieties();
+                            });
+                    });
+
+                    card.findViewById(R.id.btnReject).setOnClickListener(v -> {
+                        mDatabase.child("Societies").child(societyId).child("status").setValue("rejected")
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), name + " Rejected", Toast.LENGTH_SHORT).show();
+                                fetchSocieties();
+                            });
+                    });
+                    
+                    llPendingSocieties.addView(card);
                 }
             }
 
@@ -96,5 +132,86 @@ public class AdminSocietiesFragment extends Fragment {
                 if (isAdded()) Toast.makeText(getContext(), "Error fetching societies", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showSocietyDetailsDialog(DataSnapshot societySnapshot) {
+        if (getContext() == null) return;
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_details, null);
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        LinearLayout llContainer = dialogView.findViewById(R.id.llDetailsContainer);
+        com.google.android.material.button.MaterialButton btnAction = dialogView.findViewById(R.id.btnPrimaryAction);
+        com.google.android.material.button.MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        tvTitle.setText("Society Details");
+        String accStatus = societySnapshot.child("accountStatus").getValue(String.class);
+        boolean isSuspended = "suspended".equals(accStatus);
+
+        if (isSuspended) {
+            btnAction.setText("Unsuspend Society");
+        } else {
+            btnAction.setText("Suspend Society");
+        }
+
+        addDetailRow(llContainer, "Name", getString(societySnapshot, "name", "Name"));
+        addDetailRow(llContainer, "Description", getString(societySnapshot, "description", "Description"));
+        addDetailRow(llContainer, "Category", getString(societySnapshot, "category", "Category"));
+        addDetailRow(llContainer, "Manager Email", getString(societySnapshot, "managerEmail", "email"));
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_dialog_rounded);
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnAction.setOnClickListener(v -> {
+            String sid = societySnapshot.getKey();
+            if (sid != null) {
+                if (isSuspended) {
+                    // Unsuspend
+                    mDatabase.child("Societies").child(sid).child("accountStatus").removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Society Unsuspended Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                fetchSocieties();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to unsuspend: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                } else {
+                    // Soft Suspend
+                    mDatabase.child("Societies").child(sid).child("accountStatus").setValue("suspended")
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(getContext(), "Society Suspended Successfully", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                fetchSocieties();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to suspend: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            } else {
+                Toast.makeText(getContext(), "Error: Society ID is null", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private String getString(DataSnapshot snapshot, String... keys) {
+        for (String key : keys) {
+            Object val = snapshot.child(key).getValue();
+            if (val != null) return String.valueOf(val);
+        }
+        return "null";
+    }
+
+    private void addDetailRow(LinearLayout container, String label, String value) {
+        if (getContext() == null) return;
+        TextView tv = new TextView(getContext());
+        tv.setText(label + ": " + (value != null ? value : "null"));
+        tv.setTextSize(16);
+        tv.setTextColor(android.graphics.Color.parseColor("#191C1D"));
+        tv.setPadding(0, 0, 0, 20);
+        container.addView(tv);
     }
 }

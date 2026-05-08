@@ -61,7 +61,8 @@ public class FacultyProfileFragment extends Fragment {
         setupItem(itemExp, "Experience", R.drawable.ic_work);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(facultyId);
+        String currentUid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "fac1";
+        mDatabase = FirebaseDatabase.getInstance().getReference("Faculty").child(currentUid);
 
         btnEditProfile.setOnClickListener(v -> showEditProfileDialog());
 
@@ -85,7 +86,7 @@ public class FacultyProfileFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists() && isAdded()) {
                     String name = snapshot.child("name").getValue(String.class);
-                    String post = snapshot.child("position").getValue(String.class);
+                    String post = snapshot.child("post").getValue(String.class);
                     String email = snapshot.child("email").getValue(String.class);
                     String dept = snapshot.child("department").getValue(String.class);
                     String qual = snapshot.child("qualification").getValue(String.class);
@@ -138,7 +139,7 @@ public class FacultyProfileFragment extends Fragment {
         builder.setPositiveButton("Save Changes", (dialog, which) -> {
             Map<String, Object> updates = new HashMap<>();
             updates.put("name", etName.getText().toString().trim());
-            updates.put("position", etPost.getText().toString().trim());
+            updates.put("post", etPost.getText().toString().trim());
             updates.put("department", etDept.getText().toString().trim());
             updates.put("qualification", etQual.getText().toString().trim());
             updates.put("experience", etExp.getText().toString().trim());
