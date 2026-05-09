@@ -354,45 +354,56 @@
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- See Campus Map Action -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnSeeCampusMap"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="140dp"
             android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp">
 
-            <ImageView
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_gallery"
-                android:alpha="0.4" />
+                android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="horizontal">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_location"
-                    app:tint="@color/primary" />
-                <TextView
+                    android:id="@+id/ivMapBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/campus_overview" />
+
+                <!-- Dark Gradient Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_card_overlay_dark" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="See Campus Map"
-                    android:textColor="@color/primary"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="#FFFFFF" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="SEE CAMPUS MAP"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:letterSpacing="0.05" />
+                </LinearLayout>
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

@@ -12,6 +12,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import android.widget.ImageView;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
+import android.view.animation.LinearInterpolator;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.database.DataSnapshot;
@@ -76,12 +81,34 @@ public class AdminDashboardFragment extends Fragment {
         btnNewAnnouncement.setOnClickListener(v -> showAnnouncementDialog());
         btnManageEvents.setOnClickListener(v -> Toast.makeText(getContext(), "Manage Events Feature", Toast.LENGTH_SHORT).show());
         btnSeeCampusMap.setOnClickListener(v -> {
-             Toast.makeText(getContext(), "See Campus Map Feature", Toast.LENGTH_SHORT).show();
+             if (getActivity() instanceof AdminDashboardActivity) {
+                 ((AdminDashboardActivity) getActivity()).switchToCampusMap();
+             }
         });
+
+        startMapAnimation(view);
 
         fetchStats();
 
         return view;
+    }
+
+    private void startMapAnimation(View view) {
+        ImageView ivMapBackground = view.findViewById(R.id.ivMapBackground);
+        if (ivMapBackground == null) return;
+
+        // Slow Ken Burns Effect: Zoom and Pan
+        PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0f, 1.2f);
+        PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0f, 1.2f);
+        PropertyValuesHolder transX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0f, -30f);
+        PropertyValuesHolder transY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, 0f, -20f);
+
+        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(ivMapBackground, scaleX, scaleY, transX, transY);
+        animator.setDuration(15000); // 15 seconds for a very slow, elegant movement
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.start();
     }
 
     private void fetchStats() {

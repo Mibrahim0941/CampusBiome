@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_header_gradient">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/white"
+            android:background="@drawable/bg_circle_translucent"
+            android:layout_marginEnd="16dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tvMapTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Campus Map Admin"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"/>
+
+        <ProgressBar
+            android:id="@+id/mapProgressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminateTint="@color/white"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.example.campusbiome.CampusMapView
+            android:id="@+id/campusMapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"/>
+
+        <!-- Upload Prompt Overlay -->
+        <LinearLayout
+            android:id="@+id/layoutUploadPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_office_hours"
+                app:tint="#DDDDDD"/>
+
+            <TextView
+                android:id="@+id/tvUploadPrompt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No SVG Map Found"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#888888"
+                android:layout_marginTop="16dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUploadSvg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload SVG Map"
+                android:layout_marginTop="16dp"
+                app:cornerRadius="12dp"
+                android:backgroundTint="#006B5E"/>
+
+        </LinearLayout>
+
+        <!-- Reset Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnResetMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:visibility="gone"
+            app:backgroundTint="@color/white"
+            app:tint="#006B5E"
+            android:contentDescription="Reset Map" />
+
+    </FrameLayout>
+
+    <!-- Bottom Management Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardManagement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/tvCurrentView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Campus Overview"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:textStyle="bold"
+                android:textAllCaps="true"/>
+
+            <TextView
+                android:id="@+id/tvViewDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Click on building blocks to manage their specific layouts."
+                android:textSize="12sp"
+                android:textColor="#999999"
+                android:layout_marginTop="4dp"/>
+
+            <LinearLayout
+                android:id="@+id/layoutFloorSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Floor"
+                    android:textSize="11sp"
+                    android:textColor="#999999"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:id="@+id/containerFloors"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"/>
+                    </HorizontalScrollView>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAddFloor"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ ADD"
+                        android:textColor="#006B5E"
+                        android:textSize="12sp"
+                        app:icon="@android:drawable/ic_input_add"
+                        app:iconTint="#006B5E"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutBuildingActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUpdateBlockSvg"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Update SVG"
+                    android:textColor="#006B5E"
+                    app:icon="@android:drawable/ic_menu_upload"
+                    app:iconTint="#006B5E"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBackToOverview"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Back to Overview"
+                    android:textColor="#E53935"
+                    app:icon="@android:drawable/ic_menu_revert"
+                    app:iconTint="#E53935"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

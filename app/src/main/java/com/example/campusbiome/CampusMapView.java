@@ -61,7 +61,8 @@ public class CampusMapView extends View {
     private OnTransformChangeListener transformListener;
 
     private static final List<String> CLICKABLE_BUILDINGS = Arrays.asList(
-            "civil_block", "Lib_block", "path7", "F_block", "D_block", "open_cafe"
+            "civil_block", "Lib_block", "path7", "F_block", "D_block", "open_cafe",
+            "A_block", "B_block", "C_block", "E_block", "G_block", "H_block", "admin_block"
     );
 
     public interface OnBuildingClickListener {
@@ -144,13 +145,18 @@ public class CampusMapView extends View {
                     } else if ("path".equalsIgnoreCase(tagName)) {
                         String d = parser.getAttributeValue(null, "d");
                         String fill = parser.getAttributeValue(null, "fill");
+                        String id = parser.getAttributeValue(null, "id");
 
                         if (d != null) {
                             if (fill == null) fill = "#000000";
                             Path path = PathParser.createPathFromPathData(d);
                             int color = Color.parseColor(fill);
-                            boolean clickable = CLICKABLE_BUILDINGS.contains(currentCommentName);
-                            mapElements.add(new MapElement(currentCommentName, path, color, clickable));
+                            
+                            // Preference: 'id' attribute, then comment name
+                            String elementName = (id != null && !id.isEmpty()) ? id : currentCommentName;
+                            boolean clickable = CLICKABLE_BUILDINGS.contains(elementName);
+                            
+                            mapElements.add(new MapElement(elementName, path, color, clickable));
                         }
                     }
                 } else if (eventType == XmlPullParser.COMMENT) {

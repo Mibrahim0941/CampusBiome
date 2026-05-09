@@ -112,6 +112,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
         openFragment(new AdminProfileFragment());
     }
 
+    public void switchToCampusMap() {
+        // No bottom nav index for this yet, so we don't call updateBottomNav
+        openFragment(new AdminCampusMapFragment());
+    }
+
     private void updateBottomNav(int position) {
         // Reset all
         navHomeCard.setCardBackgroundColor(Color.TRANSPARENT);
