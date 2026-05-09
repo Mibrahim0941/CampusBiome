@@ -1,87 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
-
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#5C8374"
-        android:padding="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Members"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage members and registration requests"
-            android:textColor="#D0E8E0"
-            android:textSize="13sp"
-            android:layout_marginTop="4dp"/>
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F5F7F6">
+    <!--  Rounded green header card  -->
+    <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp" app:cardCornerRadius="16dp" app:cardElevation="4dp" app:cardBackgroundColor="#5C8374">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Members" android:textColor="#FFFFFF" android:textSize="24sp" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Manage members and registration requests" android:textColor="#C8E6C9" android:textSize="13sp" android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    <!--  Tabs  -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:background="#FFFFFF" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:elevation="2dp">
+        <TextView android:id="@+id/tabRequests" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Requests" android:textSize="14sp" android:textStyle="bold" android:textColor="#FFFFFF" android:background="#5C8374"/>
+        <TextView android:id="@+id/tabMembers" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Members" android:textSize="14sp" android:textColor="#000000" android:background="#FFFFFF"/>
     </LinearLayout>
-
-    <!-- Tabs -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:background="#FFFFFF"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="14dp"
-        android:elevation="2dp">
-
-        <TextView
-            android:id="@+id/tabRequests"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Requests"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:background="#5C8374"/>
-
-        <TextView
-            android:id="@+id/tabMembers"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Members"
-            android:textSize="14sp"
-            android:textColor="#5C8374"
-            android:background="#FFFFFF"/>
-
-    </LinearLayout>
-
-    <!-- Accent line -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="#D0E8E0"/>
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMembers"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:padding="16dp"
-        android:clipToPadding="false"/>
-
+    <!--  Accent line under tabs  -->
+    <View android:layout_width="match_parent" android:layout_height="2dp" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:background="#D0E8E0"/>
+    <!--  RecyclerView  -->
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvMembers" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginTop="8dp" android:padding="16dp" android:clipToPadding="false"/>
 </LinearLayout>

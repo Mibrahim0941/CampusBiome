@@ -1,136 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F7F6">
-
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#5C8374"
-        android:padding="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Events"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage and view all society events"
-            android:textColor="#D0E8E0"
-            android:textSize="13sp"
-            android:layout_marginTop="4dp"/>
-
-    </LinearLayout>
-
-    <!-- Scrollable body -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Pending approval section -->
-                <LinearLayout
-                    android:id="@+id/pendingSection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="8dp"
-                        android:background="#FFF8E1">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⏳  Awaiting Uni Admin Approval"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="#F57F17"/>
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F5F7F6">
+    <!--  ── Rounded green header card ──────────────────────────────────────  -->
+    <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp" app:cardCornerRadius="16dp" app:cardElevation="4dp" app:cardBackgroundColor="#5C8374">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Events" android:textColor="#FFFFFF" android:textSize="24sp" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Manage and view all society events" android:textColor="#C8E6C9" android:textSize="13sp" android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    <!--  ── Scrollable body ─────────────────────────────────────────────────  -->
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <!--  Pending approval section  -->
+                <LinearLayout android:id="@+id/pendingSection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="4dp" android:paddingBottom="8dp" android:background="#FFF8E1">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⏳ Awaiting Uni Admin Approval" android:textSize="13sp" android:textStyle="bold" android:textColor="#F57F17"/>
                     </LinearLayout>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvPendingEvents"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:clipToPadding="false"
-                        android:nestedScrollingEnabled="false"
-                        android:background="#FFFDE7"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#E0E0E0"/>
-
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvPendingEvents" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:clipToPadding="false" android:nestedScrollingEnabled="false" android:background="#FFFDE7"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0"/>
                 </LinearLayout>
-
-                <!-- Approved events label -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Approved Events"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#5C8374"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingTop="14dp"
-                    android:paddingBottom="6dp"/>
-
-                <!-- Approved events list -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvEvents"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:clipToPadding="false"
-                    android:nestedScrollingEnabled="false"/>
-
-                <!-- Space so FAB doesn't overlap last card -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"/>
-
+                <!--  Approved events label  -->
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Approved Events" android:textSize="14sp" android:textStyle="bold" android:textColor="#5C8374" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="8dp" android:paddingBottom="6dp"/>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvEvents" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:clipToPadding="false" android:nestedScrollingEnabled="false"/>
+                <View android:layout_width="match_parent" android:layout_height="80dp"/>
             </LinearLayout>
-
         </androidx.core.widget.NestedScrollView>
-
-        <!-- FAB -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnAddEvent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:src="@android:drawable/ic_input_add"
-            android:contentDescription="Add Event"/>
-
+        <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/btnAddEvent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="16dp" android:src="@android:drawable/ic_input_add" android:contentDescription="Add Event"/>
     </FrameLayout>
-
 </LinearLayout>
