@@ -18,24 +18,37 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SocietyEventsFragment extends Fragment {
 
-    private RecyclerView           rvEvents;
-    private FloatingActionButton   btnAddEvent;
+    private RecyclerView         rvEvents;
+    private FloatingActionButton btnAddEvent;
 
+    // ── Approved events shown in list ─────────────────────────────────────────
     private final List<SocietyEvent> eventList = new ArrayList<>();
-    private final List<String>       eventIds  = new ArrayList<>(); // parallel keys list
+    private final List<String>       eventIds  = new ArrayList<>();
     private SocietyEventAdapter adapter;
+
+    // ── Pending events shown in pending section ───────────────────────────────
+    private final List<SocietyEvent> pendingList = new ArrayList<>();
+    private final List<String>       pendingIds  = new ArrayList<>();
+    private SocietyEventAdapter pendingAdapter;
+
+    private RecyclerView rvPendingEvents;
+    private View         pendingSection;
 
     private DatabaseReference dbRef;
     private String societyId;
@@ -46,8 +59,10 @@ public class SocietyEventsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_society_events, container, false);
 
-        rvEvents    = view.findViewById(R.id.rvEvents);
-        btnAddEvent = view.findViewById(R.id.btnAddEvent);
+        rvEvents       = view.findViewById(R.id.rvEvents);
+        btnAddEvent    = view.findViewById(R.id.btnAddEvent);
+        rvPendingEvents = view.findViewById(R.id.rvPendingEvents);   // new view — see layout
+        pendingSection  = view.findViewById(R.id.pendingSection);     // new view — see layout
 
         rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -60,9 +75,16 @@ public class SocietyEventsFragment extends Fragment {
             return view;
         }
 
-        // Pass eventIds and listener to adapter
+        // Approved events — show "View Registrations" button
         adapter = new SocietyEventAdapter(eventList, eventIds, this::openRegistrations);
         rvEvents.setAdapter(adapter);
+
+        // Pending events — no action button (read-only preview for the manager)
+        if (rvPendingEvents != null) {
+            rvPendingEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+            pendingAdapter = new SocietyEventAdapter(pendingList, pendingIds, null);
+            rvPendingEvents.setAdapter(pendingAdapter);
+        }
 
         dbRef = FirebaseDatabase.getInstance()
                 .getReference("Societies")
@@ -76,23 +98,45 @@ public class SocietyEventsFragment extends Fragment {
         return view;
     }
 
+    // ── Load and split events by status ──────────────────────────────────────
     private void loadEvents() {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 eventList.clear();
                 eventIds.clear();
+                pendingList.clear();
+                pendingIds.clear();
 
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     SocietyEvent event = snap.getValue(SocietyEvent.class);
-                    if (event != null) {
-                        event.setId(snap.getKey());
-                        eventList.add(0, event);    // newest first
+                    if (event == null) continue;
+
+                    event.setId(snap.getKey());
+                    String status = event.getStatus();
+
+                    if ("approved".equalsIgnoreCase(status)) {
+                        // ✅ Only approved events appear in the main list
+                        eventList.add(0, event);
                         eventIds.add(0, snap.getKey());
+                    } else if ("pending".equalsIgnoreCase(status) || status == null) {
+                        // ⏳ Pending events shown in a separate section for the manager
+                        pendingList.add(0, event);
+                        pendingIds.add(0, snap.getKey());
                     }
+                    // "rejected" events are silently ignored
                 }
 
                 adapter.notifyDataSetChanged();
+
+                // Show/hide pending section
+                if (pendingSection != null) {
+                    pendingSection.setVisibility(
+                            pendingList.isEmpty() ? View.GONE : View.VISIBLE);
+                }
+                if (pendingAdapter != null) {
+                    pendingAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -102,7 +146,7 @@ public class SocietyEventsFragment extends Fragment {
         });
     }
 
-    // ── Open registrations list for this event ────────────────────────────────
+    // ── Open registrations for an approved event ──────────────────────────────
     private void openRegistrations(SocietyEvent event, String eventId) {
         EventRegistrationsFragment frag =
                 EventRegistrationsFragment.newInstance(societyId, eventId, event.getTitle());
@@ -113,7 +157,7 @@ public class SocietyEventsFragment extends Fragment {
                 .commit();
     }
 
-    // ── Add event dialog (unchanged from original) ────────────────────────────
+    // ── Add event dialog ──────────────────────────────────────────────────────
     private void showAddEventDialog() {
         View dialogView = LayoutInflater.from(getContext())
                 .inflate(R.layout.dialog_add_event, null);
@@ -138,14 +182,14 @@ public class SocietyEventsFragment extends Fragment {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         btnPublish.setOnClickListener(v -> {
-            String title  = etTitle.getText().toString().trim();
-            String desc   = etDescription.getText().toString().trim();
-            String day    = spDay.getSelectedItem().toString();
-            String month  = spMonth.getSelectedItem().toString();
-            String year   = spYear.getSelectedItem().toString();
-            String time   = etTime.getText().toString().trim();
-            String ampm   = spAmPm.getSelectedItem().toString();
-            String venue  = etVenue.getText().toString().trim();
+            String title = etTitle.getText().toString().trim();
+            String desc  = etDescription.getText().toString().trim();
+            String day   = spDay.getSelectedItem().toString();
+            String month = spMonth.getSelectedItem().toString();
+            String year  = spYear.getSelectedItem().toString();
+            String time  = etTime.getText().toString().trim();
+            String ampm  = spAmPm.getSelectedItem().toString();
+            String venue = etVenue.getText().toString().trim();
 
             if (TextUtils.isEmpty(title) || TextUtils.isEmpty(desc)) {
                 Toast.makeText(getContext(), "Fill required fields", Toast.LENGTH_SHORT).show();
@@ -180,25 +224,34 @@ public class SocietyEventsFragment extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item, ampm));
     }
 
+    // ── Write new event to Firebase ───────────────────────────────────────────
     private void addEvent(String title, String desc, String day, String month,
                           String year, String time, String ampm, String venue) {
 
         String id = dbRef.push().getKey();
         if (id == null) return;
 
+        String uid = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid() : "unknown";
+        String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                .format(new Date());
+
+        // Build event — constructor sets status = "pending" automatically
         SocietyEvent event = new SocietyEvent(day, month, year, title, desc, time, ampm, venue);
+        event.setCreatedBy(uid);
+        event.setCreatedAt(createdAt);
+        // event.status is already "pending" from the constructor
 
-        // Save under society events
-        dbRef.child(id).setValue(event);
-
-        // Also mirror to global Events table (for home screen)
-        FirebaseDatabase.getInstance()
-                .getReference("Events")
-                .child(id)
-                .setValue(event)
+        // ✅ Save only under the society — NOT mirrored to global Events table yet.
+        // The uni admin approves it; their code sets status="approved" and mirrors
+        // to the global Events node at that point.
+        dbRef.child(id).setValue(event)
                 .addOnSuccessListener(unused ->
-                        Toast.makeText(getContext(), "Event Added!", Toast.LENGTH_SHORT).show())
+                        Toast.makeText(getContext(),
+                                "Event submitted for approval! ⏳",
+                                Toast.LENGTH_LONG).show())
                 .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(getContext(),
+                                "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

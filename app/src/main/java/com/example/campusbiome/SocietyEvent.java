@@ -24,6 +24,7 @@ public class SocietyEvent {
     private transient String id;         // event's Firebase key
     private transient String societyId;  // which society this belongs to
     private transient String societyName;
+    private String status;
 
     // ── Required no-arg constructor for Firebase ──────────────────────────────
     public SocietyEvent() {}
@@ -40,6 +41,7 @@ public class SocietyEvent {
         this.time        = time;
         this.ampm        = ampm;
         this.venue       = venue;
+        this.status="pending";
     }
 
     // ── Getters ───────────────────────────────────────────────────────────────
@@ -56,6 +58,7 @@ public class SocietyEvent {
     public String getVenue()       { return venue; }
     public String getCreatedAt()   { return createdAt; }
     public String getCreatedBy()   { return createdBy; }
+    public String getStatus()      { return status; }
     public Map<String, Object> getRegistrations() { return registrations; }
 
     public int getRegistrationCount() {
@@ -64,6 +67,10 @@ public class SocietyEvent {
 
     public boolean isRegistered(String uid) {
         return registrations != null && registrations.containsKey(uid);
+    }
+
+    public boolean isApproved() {
+        return "approved".equalsIgnoreCase(status);
     }
 
     // ── Setters ───────────────────────────────────────────────────────────────
@@ -78,6 +85,7 @@ public class SocietyEvent {
     public void setTime(String time)               { this.time = time; }
     public void setAmpm(String ampm)               { this.ampm = ampm; }
     public void setVenue(String venue)             { this.venue = venue; }
+    public void setStatus(String status)           { this.status = status; }
     public void setCreatedAt(String createdAt)     { this.createdAt = createdAt; }
     public void setCreatedBy(String createdBy)     { this.createdBy = createdBy; }
     public void setRegistrations(Map<String, Object> registrations) {
