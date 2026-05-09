@@ -82,6 +82,7 @@ public class SocietyTasksFragment extends Fragment {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     SocietyEvent event = snap.getValue(SocietyEvent.class);
                     if (event != null) {
+                        if (!"approved".equalsIgnoreCase(event.getStatus())) continue;
                         event.setId(snap.getKey());
                         eventList.add(0, event);
                         eventIds.add(0, snap.getKey());
