@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="#FFFFFF"
+    app:cardBackgroundColor="@color/surface"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="#E1E3E4"
@@ -21,7 +21,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            app:cardBackgroundColor="#F0F4F4"
+            app:cardBackgroundColor="@color/card_bg"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
             <LinearLayout

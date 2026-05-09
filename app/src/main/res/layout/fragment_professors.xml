@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FBFB">
+    android:background="@color/background">
 
     <!-- Header -->
     <LinearLayout
@@ -32,7 +32,7 @@
             android:text="Professor Connect"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#1A1C1C"/>
+            android:textColor="@color/text_primary"/>
 
     </LinearLayout>
 
@@ -45,7 +45,7 @@
         app:cardCornerRadius="24dp"
         app:cardElevation="0dp"
         app:strokeWidth="1dp"
-        app:strokeColor="#8F9B99"
+        app:strokeColor="@color/primary_light"
         app:cardBackgroundColor="@android:color/transparent">
 
         <LinearLayout
@@ -62,8 +62,8 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:hint="Search Professors"
-                android:textColorHint="#8F9B99"
-                android:textColor="#1A1C1C"
+                android:textColorHint="@color/text_secondary"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:maxLines="1"
                 android:singleLine="true"/>
@@ -72,7 +72,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_search"
-                app:tint="#8F9B99"/>
+                app:tint="@color/primary"/>
 
         </LinearLayout>
 

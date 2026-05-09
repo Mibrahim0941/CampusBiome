@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FBFB">
+    android:background="@color/background">
 
     <!-- Header -->
     <LinearLayout
@@ -20,16 +20,72 @@
             android:text="Campus Map"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#1A1C1C"/>
+            android:textColor="@color/text_primary"/>
 
     </LinearLayout>
 
-    <TextView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Campus Map content coming soon..."
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textColor="#526966"/>
+        android:layout_height="match_parent">
+
+        <com.example.campusbiome.CampusMapView
+            android:id="@+id/campusMapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"/>
+
+        <ProgressBar
+            android:id="@+id/mapProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <!-- Density Tracking Legend -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_margin="24dp"
+            android:background="#E6FFFFFF"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:elevation="4dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Density Levels"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="4dp"/>
+
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <View android:layout_width="12dp" android:layout_height="12dp" android:background="#FF4C4C"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="High" android:textSize="10sp" android:layout_marginStart="4dp" android:textColor="#555555"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="2dp">
+                <View android:layout_width="12dp" android:layout_height="12dp" android:background="#FFB84C"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Medium" android:textSize="10sp" android:layout_marginStart="4dp" android:textColor="#555555"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="2dp">
+                <View android:layout_width="12dp" android:layout_height="12dp" android:background="#4CFF4C"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Low" android:textSize="10sp" android:layout_marginStart="4dp" android:textColor="#555555"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Reset Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnResetMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:visibility="gone"
+            android:contentDescription="Reset Map" />
+
+    </FrameLayout>
 
 </LinearLayout>

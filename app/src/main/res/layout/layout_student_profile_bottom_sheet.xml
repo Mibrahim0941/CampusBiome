@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_sheet_background"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="#E1E3E4" />
+
+    <!-- Profile Picture Section -->
+    <FrameLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E1E3E4"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivBsProfilePic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_myplaces" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Camera overlay icon -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnChangePhoto"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|end"
+            app:cardBackgroundColor="#006B5E"
+            app:cardCornerRadius="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_camera"
+                app:tint="#FFFFFF" />
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+    
+    <ProgressBar
+        android:id="@+id/pbImageUpload"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"/>
+
+    <!-- User Details -->
+    <TextView
+        android:id="@+id/tvBsName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-bold"
+        android:text="Loading Name..."
+        android:textColor="#1A1C1C"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/tvBsEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:text="Loading Email..."
+        android:textColor="#8F9B99"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="24dp"
+        android:background="#E1E3E4" />
+
+    <!-- Action Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBsEditProfile"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Edit Profile"
+        app:cornerRadius="12dp"
+        app:backgroundTint="#F0F4F4"
+        android:textColor="#006B5E"
+        app:icon="@android:drawable/ic_menu_edit"
+        app:iconTint="#006B5E"
+        app:iconGravity="textStart"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+</LinearLayout>

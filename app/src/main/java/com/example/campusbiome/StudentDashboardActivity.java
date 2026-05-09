@@ -14,22 +14,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.ValueEventListener;
 
 public class StudentDashboardActivity extends AppCompatActivity {
 
-    private DrawerLayout drawerLayout;
-    private NavigationView navView;
-    private ImageView btnLogout, btnMenu;
+    private ImageView btnLogout, btnNotifications, ivProfile;
+    private MaterialCardView cardProfileImage;
     private TextView tvWelcomeUser;
     private LinearLayout navHome, navMap, navTimetable, navProfessors, navCommunity;
     private LinearLayout llEventsContainer, llHomeNotifications;
@@ -52,11 +50,11 @@ public class StudentDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        drawerLayout      = findViewById(R.id.drawer_layout);
-        navView           = findViewById(R.id.nav_view);
         btnLogout         = findViewById(R.id.btnLogout);
+        btnNotifications  = findViewById(R.id.btnNotifications);
         tvWelcomeUser     = findViewById(R.id.tvWelcomeUser);
-        btnMenu           = findViewById(R.id.btnMenu);
+        ivProfile         = findViewById(R.id.ivProfile);
+        cardProfileImage  = findViewById(R.id.cardProfileImage);
         navHome           = findViewById(R.id.navHome);
         navMap            = findViewById(R.id.navMap);
         navTimetable      = findViewById(R.id.navTimetable);
@@ -65,30 +63,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         homeContent       = findViewById(R.id.homeContent);
         llEventsContainer = findViewById(R.id.llEventsContainer);
         llHomeNotifications = findViewById(R.id.llHomeNotifications);
-
-        btnMenu.setOnClickListener(v -> {
-            if (drawerLayout != null) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
-
-        if (navView != null) {
-            navView.setNavigationItemSelectedListener(item -> {
-                int id = item.getItemId();
-                if (id == R.id.nav_profile) {
-                    openFragment(new StudentProfileFragment());
-                } else if (id == R.id.nav_edit_profile) {
-                    openFragment(new EditStudentProfileFragment());
-                } else if (id == R.id.nav_notifications) {
-                    openFragment(new NotificationsFragment());
-                } else if (id == R.id.nav_logout) {
-                    mAuth.signOut();
-                    goToRoleSelection();
-                }
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
-            });
-        }
 
         navHome.setOnClickListener(v ->      { updateNavSelection(0); showHome(); });
         navMap.setOnClickListener(v ->       { updateNavSelection(1); openFragment(new CampusMapFragment()); });
@@ -101,14 +75,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
             goToRoleSelection();
         });
 
+        btnNotifications.setOnClickListener(v -> {
+            openFragment(new NotificationsFragment());
+        });
+
+        cardProfileImage.setOnClickListener(v -> {
+            StudentProfileBottomSheet bottomSheet = new StudentProfileBottomSheet();
+            bottomSheet.show(getSupportFragmentManager(), "StudentProfileBottomSheet");
+        });
+
         // Back button: if a fragment is showing go home, otherwise exit
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    return;
-                }
                 Fragment current = getSupportFragmentManager()
                         .findFragmentById(R.id.fragment_container);
                 if (current != null) {
@@ -121,7 +100,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         });
 
         requestNotificationPermission();
-        fetchUserName(currentUser.getUid());
+        fetchUserData(currentUser.getUid());
         fetchEvents();
         fetchRecentNotifications(currentUser.getUid());
 
@@ -334,9 +313,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     .commitNow();
         }
         if (homeContent != null) homeContent.setVisibility(View.VISIBLE);
+        updateNavSelection(0);
     }
 
-    private void openFragment(Fragment fragment) {
+    public void openFragment(Fragment fragment) {
         if (homeContent != null) homeContent.setVisibility(View.GONE);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -344,22 +324,31 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void fetchUserName(String uid) {
-        mDatabase.child("Users").child(uid).child("name")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            String name = snapshot.getValue(String.class);
-                            tvWelcomeUser.setText("Welcome, " + name + "!");
-                        }
+    private void fetchUserData(String uid) {
+        mDatabase.child("Users").child(uid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    if (name != null) tvWelcomeUser.setText("Welcome, " + name + "!");
+
+                    String profilePic = snapshot.child("profile_pic").getValue(String.class);
+                    if (profilePic != null && !profilePic.isEmpty()) {
+                        Glide.with(StudentDashboardActivity.this)
+                                .load(profilePic)
+                                .placeholder(android.R.drawable.ic_menu_myplaces)
+                                .error(android.R.drawable.ic_menu_myplaces)
+                                .into(ivProfile);
+                    } else {
+                        ivProfile.setImageResource(android.R.drawable.ic_menu_myplaces);
                     }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(StudentDashboardActivity.this,
-                                "Could not load name", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(StudentDashboardActivity.this, "Could not load user data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateNavSelection(int selectedIndex) {
@@ -388,7 +377,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         for (int i = 0; i < cards.length; i++) {
             if (cards[i] == null || icons[i] == null || texts[i] == null) continue;
             if (i == selectedIndex) {
-                cards[i].setCardBackgroundColor(android.graphics.Color.parseColor("#E6F2ED"));
+                cards[i].setCardBackgroundColor(android.graphics.Color.parseColor("#C8DED9")); // card_bg
                 icons[i].setColorFilter(android.graphics.Color.parseColor("#006B5E"));
                 texts[i].setTextColor(android.graphics.Color.parseColor("#006B5E"));
             } else {
@@ -475,8 +464,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
             }
         });
     }
-
-    // ── EventItem — ONE definition, no duplicates ─────────────────────────────
 
     private static class EventItem implements Comparable<EventItem> {
 
