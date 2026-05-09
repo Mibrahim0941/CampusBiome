@@ -115,7 +115,7 @@ public class EventsFragment extends Fragment {
                     for (DataSnapshot eventSnap : eventsSnap.getChildren()) {
                         SocietyEvent event = eventSnap.getValue(SocietyEvent.class);
                         if (event == null) continue;
-
+                        if (!"approved".equalsIgnoreCase(event.getStatus())) continue;
                         // Set transient fields manually
                         event.setId(eventSnap.getKey());
                         event.setSocietyId(societyId);
