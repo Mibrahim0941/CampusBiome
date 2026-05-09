@@ -23,35 +23,49 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
     private static final int PREVIEW_LIMIT = 3;
 
-    private DrawerLayout drawerLayout;
+    // Active / inactive nav colours
+    private static final int COLOR_ACTIVE   = 0xFF5C8374;
+    private static final int COLOR_INACTIVE = 0xFF9AA8A4;
+
+    private DrawerLayout   drawerLayout;
     private NavigationView navigationView;
-    private ImageView btnMenu, btnLogout;
-    private TextView tvWelcomeUser;
+    private ImageView      btnMenu, btnLogout;
+    private TextView       tvWelcomeUser, tvSocietyName, tvSocietySubtitle;
+
+    // Bottom-nav tab roots
     private LinearLayout navHome, navMembers, navEvents, navTasks, navAnnouncements;
 
+    // Bottom-nav icons (for tint toggling)
+    private ImageView iconHome, iconMembers, iconEvents, iconTasks, iconAnnouncements;
+
+    // Bottom-nav labels (for colour toggling)
+    private TextView labelHome, labelMembers, labelEvents, labelTasks, labelAnnouncements;
+
+    // Stats
     private TextView tvStatMembers, tvStatEvents, tvStatTasks, tvStatAnnouncements;
+
     private RecyclerView rvEvents, rvRequests;
-    private TextView tvViewAllEvents, tvViewAllRequests;
+    private TextView     tvViewAllEvents, tvViewAllRequests;
 
-    // ALL events loaded from Firebase
-    private final List<SocietyEvent> allEvents     = new ArrayList<>();
-    private final List<String>       allEventIds   = new ArrayList<>();
-
-    // Only events within next month shown in dashboard preview
-    private final List<SocietyEvent> previewEvents    = new ArrayList<>();
-    private final List<String>       previewEventIds  = new ArrayList<>();
+    private final List<SocietyEvent> allEvents    = new ArrayList<>();
+    private final List<String>       allEventIds  = new ArrayList<>();
+    private final List<SocietyEvent> previewEvents   = new ArrayList<>();
+    private final List<String>       previewEventIds = new ArrayList<>();
 
     private final List<RegistrationRequest> allRequests     = new ArrayList<>();
     private final List<RegistrationRequest> previewRequests = new ArrayList<>();
 
-    private SocietyEventAdapter eventAdapter;
+    private SocietyEventAdapter        eventAdapter;
     private RegistrationRequestAdapter requestAdapter;
 
     private View dashboardContent;
 
-    private FirebaseAuth auth;
+    private FirebaseAuth      auth;
     private DatabaseReference dbRef;
-    private String societyId;
+    private String            societyId;
+
+    // Track which tab is active ("home" | "members" | "events" | "tasks" | "announcements")
+    private String activeTab = "home";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +74,6 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
         auth  = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
-
         societyId = getIntent().getStringExtra("societyId");
 
         bindViews();
@@ -70,7 +83,6 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> logout());
 
-        // ── Back: if fragment showing → go to dashboard; otherwise exit ──
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -91,17 +103,32 @@ public class SocietyDashboardActivity extends AppCompatActivity {
         navigationView    = findViewById(R.id.nav_view);
         btnMenu           = findViewById(R.id.btnMenu);
         tvWelcomeUser     = findViewById(R.id.tvWelcomeUser);
+        tvSocietyName     = findViewById(R.id.tvSocietyName);
+        tvSocietySubtitle = findViewById(R.id.tvSocietySubtitle);
         btnLogout         = findViewById(R.id.btnLogout);
 
-        navHome           = findViewById(R.id.navHome);
-        navMembers        = findViewById(R.id.navMembers);
-        navEvents         = findViewById(R.id.navEvents);
-        navTasks          = findViewById(R.id.navTasks);
-        navAnnouncements  = findViewById(R.id.navAnnouncements);
+        navHome          = findViewById(R.id.navHome);
+        navMembers       = findViewById(R.id.navMembers);
+        navEvents        = findViewById(R.id.navEvents);
+        navTasks         = findViewById(R.id.navTasks);
+        navAnnouncements = findViewById(R.id.navAnnouncements);
 
-        tvStatMembers     = findViewById(R.id.tvStatMembers);
-        tvStatEvents      = findViewById(R.id.tvStatEvents);
-        tvStatTasks       = findViewById(R.id.tvStatTasks);
+        // Individual icons and labels inside each nav tab
+        iconHome    = navHome.findViewById(R.id.iconHome);
+        iconMembers = navMembers.findViewById(R.id.iconMembers);
+        iconEvents  = navEvents.findViewById(R.id.iconEvents);
+        iconTasks   = navTasks.findViewById(R.id.iconTasks);
+        iconAnnouncements = navAnnouncements.findViewById(R.id.iconAnnouncements);
+
+        labelHome    = navHome.findViewById(R.id.labelHome);
+        labelMembers = navMembers.findViewById(R.id.labelMembers);
+        labelEvents  = navEvents.findViewById(R.id.labelEvents);
+        labelTasks   = navTasks.findViewById(R.id.labelTasks);
+        labelAnnouncements = navAnnouncements.findViewById(R.id.labelAnnouncements);
+
+        tvStatMembers       = findViewById(R.id.tvStatMembers);
+        tvStatEvents        = findViewById(R.id.tvStatEvents);
+        tvStatTasks         = findViewById(R.id.tvStatTasks);
         tvStatAnnouncements = findViewById(R.id.tvStatAnnouncements);
 
         rvEvents          = findViewById(R.id.rvEvents);
@@ -111,15 +138,56 @@ public class SocietyDashboardActivity extends AppCompatActivity {
         dashboardContent  = findViewById(R.id.dashboardContent);
 
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        // Dashboard preview: pass null listener so "View Registrations" button
-        // is hidden by the adapter (handled by null check in SocietyEventAdapter)
         eventAdapter = new SocietyEventAdapter(previewEvents, previewEventIds, null);
         rvEvents.setAdapter(eventAdapter);
 
         rvRequests.setLayoutManager(new LinearLayoutManager(this));
         requestAdapter = new RegistrationRequestAdapter(previewRequests, this::handleRequestAction);
         rvRequests.setAdapter(requestAdapter);
+
+        // Start with Home highlighted
+        setActiveTab("home");
     }
+
+    // ── Tab highlight logic ───────────────────────────────────────────────────
+
+    /**
+     * Sets the active tab: highlights the chosen tab in green,
+     * resets all others to grey.
+     */
+    private void setActiveTab(String tab) {
+        activeTab = tab;
+
+        // Reset all to inactive first
+        setTabState(iconHome,         labelHome,         false);
+        setTabState(iconMembers,      labelMembers,      false);
+        setTabState(iconEvents,       labelEvents,       false);
+        setTabState(iconTasks,        labelTasks,        false);
+        setTabState(iconAnnouncements,labelAnnouncements,false);
+
+        // Highlight the active one
+        switch (tab) {
+            case "home":          setTabState(iconHome,         labelHome,         true); break;
+            case "members":       setTabState(iconMembers,      labelMembers,      true); break;
+            case "events":        setTabState(iconEvents,       labelEvents,       true); break;
+            case "tasks":         setTabState(iconTasks,        labelTasks,        true); break;
+            case "announcements": setTabState(iconAnnouncements,labelAnnouncements,true); break;
+        }
+    }
+
+    private void setTabState(ImageView icon, TextView label, boolean active) {
+        int color = active ? COLOR_ACTIVE : COLOR_INACTIVE;
+        if (icon  != null) icon.setColorFilter(color);
+        if (label != null) label.setTextColor(color);
+        // Bold label when active
+        if (label != null) {
+            label.setTypeface(null,
+                    active ? android.graphics.Typeface.BOLD
+                            : android.graphics.Typeface.NORMAL);
+        }
+    }
+
+    // ── Navigation ────────────────────────────────────────────────────────────
 
     private void openFragment(Fragment fragment, String tag) {
         if (societyId != null) {
@@ -127,15 +195,16 @@ public class SocietyDashboardActivity extends AppCompatActivity {
             bundle.putString("societyId", societyId);
             fragment.setArguments(bundle);
         }
-
         dashboardContent.setVisibility(View.GONE);
         findViewById(R.id.fragmentContainer).setVisibility(View.VISIBLE);
-
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, fragment, tag)
                 .addToBackStack(tag)
                 .commit();
+
+        // Highlight the correct tab
+        setActiveTab(tag);
     }
 
     private void showDashboard() {
@@ -143,6 +212,7 @@ public class SocietyDashboardActivity extends AppCompatActivity {
         findViewById(R.id.fragmentContainer).setVisibility(View.GONE);
         getSupportFragmentManager().popBackStack(null,
                 androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        setActiveTab("home");
     }
 
     private void setupBottomNav() {
@@ -154,10 +224,11 @@ public class SocietyDashboardActivity extends AppCompatActivity {
     }
 
     private void setupViewAllButtons() {
-        // "See All" on events preview → open SocietyEventsFragment (full list + View Registrations)
         tvViewAllEvents.setOnClickListener(v -> openFragment(new SocietyEventsFragment(), "events"));
         tvViewAllRequests.setOnClickListener(v -> openFragment(new SocietyMembersFragment(), "requests"));
     }
+
+    // ── Data loading ──────────────────────────────────────────────────────────
 
     private void loadManagerData() {
         FirebaseUser user = auth.getCurrentUser();
@@ -168,17 +239,45 @@ public class SocietyDashboardActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snap) {
                         String name = snap.child("name").getValue(String.class);
-                        if (name != null) tvWelcomeUser.setText("Welcome, " + name);
+                        if (name != null && tvWelcomeUser != null)
+                            tvWelcomeUser.setText("Welcome, " + name);
 
                         if (societyId == null)
                             societyId = snap.child("societyId").getValue(String.class);
 
                         if (societyId != null) {
+                            loadSocietyInfo();
                             loadEvents();
                             loadPendingRequests();
                             loadTaskCount();
                             loadAnnouncementCount();
+                            loadMemberCount();
                         }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError e) {}
+                });
+    }
+
+    private void loadSocietyInfo() {
+        dbRef.child("Societies").child(societyId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snap) {
+                        String name = snap.child("name").getValue(String.class);
+                        if (name != null) {
+                            if (tvSocietyName != null)     tvSocietyName.setText(name);
+                            if (tvSocietySubtitle != null) tvSocietySubtitle.setText(name + " · Manager Dashboard");
+                        }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError e) {}
+                });
+    }
+
+    private void loadMemberCount() {
+        dbRef.child("Societies").child(societyId).child("members")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override public void onDataChange(@NonNull DataSnapshot snap) {
+                        tvStatMembers.setText(String.valueOf(snap.getChildrenCount()));
                     }
                     @Override public void onCancelled(@NonNull DatabaseError e) {}
                 });
@@ -194,26 +293,22 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
                         for (DataSnapshot snap : snapshot.getChildren()) {
                             SocietyEvent e = snap.getValue(SocietyEvent.class);
-                            if (e != null) {
-
-                                allEvents.add(e);
-                                allEventIds.add(snap.getKey());
-                            }
+                            if (e == null) continue;
+                            allEvents.add(e);
+                            allEventIds.add(snap.getKey());
                         }
 
-                        // stat shows ALL events
-                        tvStatEvents.setText(String.valueOf(allEvents.size()));
-                        // preview shows only next-month events
+                        long approvedCount = 0;
+                        for (SocietyEvent e : allEvents)
+                            if ("approved".equalsIgnoreCase(e.getStatus())) approvedCount++;
+                        tvStatEvents.setText(String.valueOf(approvedCount));
+
                         refreshPreviewEvents();
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
     }
 
-    /**
-     * Filters allEvents to those happening within the next 30 days and
-     * takes up to PREVIEW_LIMIT of them for the dashboard RecyclerView.
-     */
     private void refreshPreviewEvents() {
         previewEvents.clear();
         previewEventIds.clear();
@@ -229,6 +324,7 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
         for (int i = 0; i < allEvents.size(); i++) {
             SocietyEvent e = allEvents.get(i);
+            if (!"approved".equalsIgnoreCase(e.getStatus())) continue;
             if (isWithinRange(e, today, monthLater)) {
                 previewEvents.add(e);
                 previewEventIds.add(allEventIds.get(i));
@@ -236,19 +332,19 @@ public class SocietyDashboardActivity extends AppCompatActivity {
             }
         }
 
-        // If nothing upcoming in next month, just show the most recent PREVIEW_LIMIT
         if (previewEvents.isEmpty()) {
-            int limit = Math.min(PREVIEW_LIMIT, allEvents.size());
-            previewEvents.addAll(allEvents.subList(0, limit));
-            previewEventIds.addAll(allEventIds.subList(0, limit));
+            for (int i = 0; i < allEvents.size(); i++) {
+                SocietyEvent e = allEvents.get(i);
+                if (!"approved".equalsIgnoreCase(e.getStatus())) continue;
+                previewEvents.add(e);
+                previewEventIds.add(allEventIds.get(i));
+                if (previewEvents.size() >= PREVIEW_LIMIT) break;
+            }
         }
 
         eventAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Returns true if the event's date falls between today and the given end calendar.
-     */
     private boolean isWithinRange(SocietyEvent e, Calendar from, Calendar to) {
         if (e.getDay() == null || e.getMonth() == null) return false;
         try {
@@ -256,15 +352,11 @@ public class SocietyDashboardActivity extends AppCompatActivity {
             int year = (e.getYear() != null) ? Integer.parseInt(e.getYear().trim()) : 2026;
             int mon  = monthToInt(e.getMonth());
             if (mon == -1) return false;
-
             Calendar eventCal = Calendar.getInstance();
             eventCal.set(year, mon, day, 0, 0, 0);
             eventCal.set(Calendar.MILLISECOND, 0);
-
             return !eventCal.before(from) && !eventCal.after(to);
-        } catch (Exception ex) {
-            return false;
-        }
+        } catch (Exception ex) { return false; }
     }
 
     private int monthToInt(String month) {
@@ -299,7 +391,6 @@ public class SocietyDashboardActivity extends AppCompatActivity {
                                 allRequests.add(req);
                             }
                         }
-                        tvStatMembers.setText(String.valueOf(allRequests.size()));
                         refreshPreviewRequests();
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -314,10 +405,14 @@ public class SocietyDashboardActivity extends AppCompatActivity {
     }
 
     private void loadTaskCount() {
-        dbRef.child("Societies").child(societyId).child("tasks")
+        dbRef.child("Societies").child(societyId).child("events")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override public void onDataChange(@NonNull DataSnapshot snap) {
-                        tvStatTasks.setText(String.valueOf(snap.getChildrenCount()));
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snap) {
+                        long total = 0;
+                        for (DataSnapshot eventSnap : snap.getChildren())
+                            total += eventSnap.child("tasks").getChildrenCount();
+                        tvStatTasks.setText(String.valueOf(total));
                     }
                     @Override public void onCancelled(@NonNull DatabaseError e) {}
                 });
@@ -340,13 +435,9 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
         if (accepted) {
             SocietyMember member = new SocietyMember(
-                    uid,
-                    req.getApplicantName(),
-                    new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            .format(new Date()),
-                    "member",
-                    "active"
-            );
+                    uid, req.getApplicantName(),
+                    new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()),
+                    "member", "active");
             dbRef.child("Societies").child(societyId).child("members").child(uid).setValue(member);
             dbRef.child("Societies").child(societyId).child("registrationRequests")
                     .child(reqId).child("status").setValue("approved");
@@ -358,7 +449,7 @@ public class SocietyDashboardActivity extends AppCompatActivity {
 
     private void logout() {
         auth.signOut();
-        startActivity(new Intent(this, RoleSelectionActivity.class));
+        startActivity(new Intent(this, GenericLoginActivity.class));
         finishAffinity();
     }
 }
