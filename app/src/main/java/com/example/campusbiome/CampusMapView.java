@@ -65,12 +65,8 @@ public class CampusMapView extends View {
 
     private static final List<String> CLICKABLE_BUILDINGS = Arrays.asList(
             "civil_block", "Lib_block", "path7", "F_block", "D_block", "open_cafe",
-<<<<<<< Updated upstream
-            "A_block", "B_block", "C_block", "E_block", "G_block", "H_block", "admin_block"
-=======
-            "A_block", "B_block", "C_block", "library_block", "old_cafe",
-            "badminton", "cricket_ground", "Futsal", "Basketball", "bike_parking"
->>>>>>> Stashed changes
+            "A_block", "B_block", "C_block", "E_block", "G_block", "H_block", "admin_block",
+            "library_block", "old_cafe", "badminton", "cricket_ground", "Futsal", "Basketball", "bike_parking"
     );
 
     public interface OnBuildingClickListener {
@@ -198,23 +194,16 @@ public class CampusMapView extends View {
                             if (fill == null) fill = "#000000";
                             Path path = PathParser.createPathFromPathData(d);
                             int color = Color.parseColor(fill);
-<<<<<<< Updated upstream
                             
-                            // Preference: 'id' attribute, then comment name
                             String elementName = (id != null && !id.isEmpty()) ? id : currentCommentName;
-                            boolean clickable = CLICKABLE_BUILDINGS.contains(elementName);
-                            
-                            mapElements.add(new MapElement(elementName, path, color, clickable));
-=======
                             boolean clickable = false;
                             for (String b : CLICKABLE_BUILDINGS) {
-                                if (b.equalsIgnoreCase(currentCommentName)) {
+                                if (b.equalsIgnoreCase(elementName)) {
                                     clickable = true;
                                     break;
                                 }
                             }
-                            mapElements.add(new MapElement(currentCommentName, path, color, clickable));
->>>>>>> Stashed changes
+                            mapElements.add(new MapElement(elementName, path, color, clickable));
                         }
                     }
                 } else if (eventType == XmlPullParser.COMMENT) {
