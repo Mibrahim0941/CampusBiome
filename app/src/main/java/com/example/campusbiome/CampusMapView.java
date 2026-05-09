@@ -2,6 +2,8 @@ package com.example.campusbiome;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -10,6 +12,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -62,7 +65,12 @@ public class CampusMapView extends View {
 
     private static final List<String> CLICKABLE_BUILDINGS = Arrays.asList(
             "civil_block", "Lib_block", "path7", "F_block", "D_block", "open_cafe",
+<<<<<<< Updated upstream
             "A_block", "B_block", "C_block", "E_block", "G_block", "H_block", "admin_block"
+=======
+            "A_block", "B_block", "C_block", "library_block", "old_cafe",
+            "badminton", "cricket_ground", "Futsal", "Basketball", "bike_parking"
+>>>>>>> Stashed changes
     );
 
     public interface OnBuildingClickListener {
@@ -142,6 +150,45 @@ public class CampusMapView extends View {
                                 svgHeight = Float.parseFloat(parts[3]);
                             }
                         }
+                    } else if ("image".equalsIgnoreCase(tagName)) {
+                        String href = parser.getAttributeValue(null, "href");
+                        if (href == null) {
+                            href = parser.getAttributeValue("http://www.w3.org/1999/xlink", "href");
+                        }
+                        if (href == null) {
+                            for (int i = 0; i < parser.getAttributeCount(); i++) {
+                                String attrName = parser.getAttributeName(i);
+                                if (attrName != null && attrName.contains("href")) {
+                                    href = parser.getAttributeValue(i);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (href != null && href.startsWith("data:image/")) {
+                            int commaIndex = href.indexOf(',');
+                            if (commaIndex != -1) {
+                                String base64Data = href.substring(commaIndex + 1);
+                                // Strip any whitespace, newlines, or carriage returns just in case
+                                base64Data = base64Data.replaceAll("\\s+", "");
+                                byte[] decodedBytes = Base64.decode(base64Data, Base64.DEFAULT);
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                                
+                                if (bitmap != null) {
+                                    String xStr = parser.getAttributeValue(null, "x");
+                                    String yStr = parser.getAttributeValue(null, "y");
+                                    String wStr = parser.getAttributeValue(null, "width");
+                                    String hStr = parser.getAttributeValue(null, "height");
+                                    
+                                    float x = xStr != null ? Float.parseFloat(xStr) : 0f;
+                                    float y = yStr != null ? Float.parseFloat(yStr) : 0f;
+                                    float w = wStr != null ? Float.parseFloat(wStr) : bitmap.getWidth();
+                                    float h = hStr != null ? Float.parseFloat(hStr) : bitmap.getHeight();
+                                    
+                                    mapElements.add(new MapElement(currentCommentName, bitmap, new RectF(x, y, x + w, y + h)));
+                                }
+                            }
+                        }
                     } else if ("path".equalsIgnoreCase(tagName)) {
                         String d = parser.getAttributeValue(null, "d");
                         String fill = parser.getAttributeValue(null, "fill");
@@ -151,12 +198,23 @@ public class CampusMapView extends View {
                             if (fill == null) fill = "#000000";
                             Path path = PathParser.createPathFromPathData(d);
                             int color = Color.parseColor(fill);
+<<<<<<< Updated upstream
                             
                             // Preference: 'id' attribute, then comment name
                             String elementName = (id != null && !id.isEmpty()) ? id : currentCommentName;
                             boolean clickable = CLICKABLE_BUILDINGS.contains(elementName);
                             
                             mapElements.add(new MapElement(elementName, path, color, clickable));
+=======
+                            boolean clickable = false;
+                            for (String b : CLICKABLE_BUILDINGS) {
+                                if (b.equalsIgnoreCase(currentCommentName)) {
+                                    clickable = true;
+                                    break;
+                                }
+                            }
+                            mapElements.add(new MapElement(currentCommentName, path, color, clickable));
+>>>>>>> Stashed changes
                         }
                     }
                 } else if (eventType == XmlPullParser.COMMENT) {
@@ -190,10 +248,14 @@ public class CampusMapView extends View {
         baseMatrix.postTranslate(baseDx, baseDy);
 
         for (MapElement el : mapElements) {
-            RectF bounds = new RectF();
-            el.path.computeBounds(bounds, true);
-            el.rawRegion = new Region();
-            el.rawRegion.setPath(el.path, new Region((int) bounds.left, (int) bounds.top, (int) bounds.right, (int) bounds.bottom));
+            if (el.path != null) {
+                RectF bounds = new RectF();
+                el.path.computeBounds(bounds, true);
+                el.rawRegion = new Region();
+                el.rawRegion.setPath(el.path, new Region((int) bounds.left, (int) bounds.top, (int) bounds.right, (int) bounds.bottom));
+            } else if (el.bitmap != null && el.imageBounds != null) {
+                el.rawRegion = new Region((int)el.imageBounds.left, (int)el.imageBounds.top, (int)el.imageBounds.right, (int)el.imageBounds.bottom);
+            }
         }
         
         updateTotalMatrix();
@@ -237,15 +299,19 @@ public class CampusMapView extends View {
         canvas.concat(totalMatrix);
 
         for (MapElement el : mapElements) {
-            paint.setColor(el.color);
-            canvas.drawPath(el.path, paint);
-
-            if (el.isClickable) {
-                paint.setStyle(Paint.Style.STROKE);
-                paint.setColor(Color.DKGRAY);
-                paint.setStrokeWidth(2f / (baseScaleFactor * currentScale)); // Keep stroke width consistent
+            if (el.bitmap != null && el.imageBounds != null) {
+                canvas.drawBitmap(el.bitmap, null, el.imageBounds, paint);
+            } else if (el.path != null) {
+                paint.setColor(el.color);
                 canvas.drawPath(el.path, paint);
-                paint.setStyle(Paint.Style.FILL);
+
+                if (el.isClickable) {
+                    paint.setStyle(Paint.Style.STROKE);
+                    paint.setColor(Color.DKGRAY);
+                    paint.setStrokeWidth(2f / (baseScaleFactor * currentScale)); // Keep stroke width consistent
+                    canvas.drawPath(el.path, paint);
+                    paint.setStyle(Paint.Style.FILL);
+                }
             }
         }
         canvas.restore();
@@ -383,12 +449,22 @@ public class CampusMapView extends View {
         int color;
         boolean isClickable;
         Region rawRegion; // Unscaled, un-transformed bounds
+        
+        Bitmap bitmap;
+        RectF imageBounds;
 
         MapElement(String name, Path path, int color, boolean isClickable) {
             this.name = name;
             this.path = path;
             this.color = color;
             this.isClickable = isClickable;
+        }
+
+        MapElement(String name, Bitmap bitmap, RectF imageBounds) {
+            this.name = name;
+            this.bitmap = bitmap;
+            this.imageBounds = imageBounds;
+            this.isClickable = false;
         }
     }
 }
