@@ -45,7 +45,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            goToRoleSelection();
+            goToLogin();
             return;
         }
 
@@ -79,7 +79,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            goToRoleSelection();
+            goToLogin();
         });
 
 
@@ -178,13 +178,16 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(AdminDashboardActivity.this, "Error fetching admin data", Toast.LENGTH_SHORT).show();
+                        if (mAuth.getCurrentUser() != null) {
+                            Toast.makeText(AdminDashboardActivity.this, "Error fetching admin data", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
 
-    private void goToRoleSelection() {
-        Intent intent = new Intent(this, RoleSelectionActivity.class);
+    private void goToLogin() {
+        Intent intent = new Intent(this, GenericLoginActivity.class);
+        intent.putExtra("role", "admin");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

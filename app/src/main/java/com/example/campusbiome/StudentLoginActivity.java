@@ -56,7 +56,7 @@ public class StudentLoginActivity extends AppCompatActivity {
         btnAction         = findViewById(R.id.btnAction);
         ivBack            = findViewById(R.id.ivBack);
 
-        ivBack.setOnClickListener(v -> finish());
+        ivBack.setOnClickListener(v -> navigateBackToRoleSelection());
         tabLogin.setOnClickListener(v -> switchMode(true));
         tabSignup.setOnClickListener(v -> switchMode(false));
         tvForgotPassword.setOnClickListener(v -> sendPasswordReset());
@@ -217,5 +217,17 @@ public class StudentLoginActivity extends AppCompatActivity {
 
     private void onAuthFailed(String message) {
         Toast.makeText(this, "Authentication failed: " + message, Toast.LENGTH_LONG).show();
+    }
+
+    private void navigateBackToRoleSelection() {
+        Intent intent = new Intent(this, RoleSelectionActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        navigateBackToRoleSelection();
     }
 }

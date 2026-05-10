@@ -46,7 +46,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            goToRoleSelection();
+            goToLogin();
             return;
         }
 
@@ -72,7 +72,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            goToRoleSelection();
+            goToLogin();
         });
 
         btnNotifications.setOnClickListener(v -> {
@@ -346,7 +346,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StudentDashboardActivity.this, "Could not load user data", Toast.LENGTH_SHORT).show();
+                if (mAuth.getCurrentUser() != null) {
+                    Toast.makeText(StudentDashboardActivity.this, "Could not load user data", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -388,8 +390,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
         }
     }
 
-    private void goToRoleSelection() {
-        Intent intent = new Intent(this, RoleSelectionActivity.class);
+    private void goToLogin() {
+        Intent intent = new Intent(this, StudentLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
@@ -459,8 +461,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(StudentDashboardActivity.this,
-                        "Could not load events", Toast.LENGTH_SHORT).show();
+                if (mAuth.getCurrentUser() != null) {
+                    Toast.makeText(StudentDashboardActivity.this,
+                            "Could not load events", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -481,6 +481,7 @@ public class SocietyDashboardActivity extends AppCompatActivity {
         if (requestsRef != null && requestsListener != null) requestsRef.removeEventListener(requestsListener);
         auth.signOut();
         Intent intent = new Intent(this, GenericLoginActivity.class);
+        intent.putExtra("role", "society_manager");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

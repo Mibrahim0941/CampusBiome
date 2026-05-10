@@ -112,7 +112,7 @@ public class FacultyAppointmentsFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("FacultyAppointments", "Failed to load appointments", error.toException());
-                if (getContext() != null) {
+                if (getContext() != null && FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Toast.makeText(getContext(), "Failed to load appointments", Toast.LENGTH_SHORT).show();
                 }
             }

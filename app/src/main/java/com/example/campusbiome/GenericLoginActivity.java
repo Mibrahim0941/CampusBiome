@@ -51,7 +51,7 @@ public class GenericLoginActivity extends AppCompatActivity {
         ivBack           = findViewById(R.id.ivBack);
 
         tvTitle.setText(rolePrettyName(role) + " Login");
-        ivBack.setOnClickListener(v -> finish());
+        ivBack.setOnClickListener(v -> navigateBackToRoleSelection());
         tvForgotPassword.setOnClickListener(v -> sendPasswordReset());
         btnLogin.setOnClickListener(v -> handleLogin());
     }
@@ -185,5 +185,17 @@ public class GenericLoginActivity extends AppCompatActivity {
             case "society_manager": return "Society Manager";
             default:                return "User";
         }
+    }
+
+    private void navigateBackToRoleSelection() {
+        Intent intent = new Intent(this, RoleSelectionActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        navigateBackToRoleSelection();
     }
 }

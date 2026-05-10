@@ -40,7 +40,10 @@ public class FacultyDashboardActivity extends AppCompatActivity {
 
         ivLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, RoleSelectionActivity.class));
+            Intent intent = new Intent(this, GenericLoginActivity.class);
+            intent.putExtra("role", "faculty");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
 

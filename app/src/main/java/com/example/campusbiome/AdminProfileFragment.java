@@ -85,7 +85,7 @@ public class AdminProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) Toast.makeText(getContext(), "Error loading profile", Toast.LENGTH_SHORT).show();
+                if (isAdded() && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) Toast.makeText(getContext(), "Error loading profile", Toast.LENGTH_SHORT).show();
             }
         });
     }

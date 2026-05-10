@@ -94,7 +94,9 @@ public class AdminStudentsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(AdminStudentsActivity.this, "Error fetching students", Toast.LENGTH_SHORT).show();
+                if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Toast.makeText(AdminStudentsActivity.this, "Error fetching students", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -184,7 +184,9 @@ public class AdminCampusMapFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
-                Toast.makeText(getContext(), "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Toast.makeText(getContext(), "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

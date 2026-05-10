@@ -204,7 +204,7 @@ public class AdminSocietiesFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) Toast.makeText(getContext(), "Error fetching societies", Toast.LENGTH_SHORT).show();
+                if (isAdded() && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) Toast.makeText(getContext(), "Error fetching societies", Toast.LENGTH_SHORT).show();
             }
         });
     }

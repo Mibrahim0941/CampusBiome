@@ -171,7 +171,7 @@ public class AdminDashboardFragment extends Fragment {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) {
+                if (isAdded() && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Toast.makeText(getContext(), "Error loading faculty: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -198,7 +198,7 @@ public class AdminDashboardFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                if (isAdded()) {
+                if (isAdded() && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Toast.makeText(getContext(), "Error loading societies: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
