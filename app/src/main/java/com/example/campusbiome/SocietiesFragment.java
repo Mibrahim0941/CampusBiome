@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.campusbiome.societies.adapters.PendingSocietyAdapter;
 import com.example.campusbiome.societies.adapters.SocietyAdapter;
 import com.example.campusbiome.societies.models.Society;
 import com.google.android.material.textfield.TextInputEditText;
@@ -51,6 +53,8 @@ public class SocietiesFragment extends Fragment {
 
     private DatabaseReference  societiesRef;
     private ValueEventListener societiesListener;
+    private LinearLayout layoutPendingProposals;
+    private RecyclerView recyclerPending;
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
     @Nullable
@@ -69,6 +73,11 @@ public class SocietiesFragment extends Fragment {
         txtBrowseCount = view.findViewById(R.id.txtBrowseCount);
         btnPropose    = view.findViewById(R.id.btnProposeSociety);
         etSearch      = view.findViewById(R.id.etSearchSociety);
+
+        layoutPendingProposals = view.findViewById(R.id.layoutPendingProposals);
+        recyclerPending        = view.findViewById(R.id.recyclerPendingProposals);
+        recyclerPending.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerPending.setNestedScrollingEnabled(false);
 
         recyclerMy.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerMy.setNestedScrollingEnabled(false);
@@ -120,22 +129,36 @@ public class SocietiesFragment extends Fragment {
                 allSocietyIds.clear();
                 pendingIds.clear();
 
+                List<Society> pendingProposals  = new ArrayList<>();
+                List<String>  pendingPropIds    = new ArrayList<>();
+
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Society s = ds.getValue(Society.class);
                     if (s == null) continue;
 
-                    // Only show approved societies to students
+                    // Pending proposal — only show to the person who proposed it
+                    if ("pending".equals(s.getStatus())) {
+                        String proposedByUid = ds.child("proposedByUid").getValue(String.class);
+                        if (currentUid != null && currentUid.equals(proposedByUid)) {
+                            s.setId(ds.getKey());
+                            pendingProposals.add(s);
+                            pendingPropIds.add(ds.getKey());
+                        }
+                        continue; // don't add to browse list
+                    }
+
+                    // Skip rejected
                     if (!"approved".equals(s.getStatus())) continue;
 
                     s.setId(ds.getKey());
                     allSocieties.add(s);
                     allSocietyIds.add(ds.getKey());
 
-                    // Check if user has a pending request in this society
+                    // Check if user has a pending join request in this society
                     if (currentUid != null) {
                         DataSnapshot requests = ds.child("registrationRequests");
                         for (DataSnapshot req : requests.getChildren()) {
-                            String reqUid   = req.child("applicantUid").getValue(String.class);
+                            String reqUid    = req.child("applicantUid").getValue(String.class);
                             String reqStatus = req.child("status").getValue(String.class);
                             if (currentUid.equals(reqUid) && "pending".equals(reqStatus)) {
                                 pendingIds.add(ds.getKey());
@@ -144,6 +167,8 @@ public class SocietiesFragment extends Fragment {
                     }
                 }
 
+// Render pending proposals section
+                renderPendingProposals(pendingProposals, pendingPropIds);
                 renderLists(currentSearchQuery());
             }
 
@@ -158,6 +183,15 @@ public class SocietiesFragment extends Fragment {
     }
 
     // ── Rendering ────────────────────────────────────────────────────────────
+    private void renderPendingProposals(List<Society> proposals, List<String> ids) {
+        if (proposals.isEmpty()) {
+            layoutPendingProposals.setVisibility(View.GONE);
+            return;
+        }
+        layoutPendingProposals.setVisibility(View.VISIBLE);
+        recyclerPending.setAdapter(new PendingSocietyAdapter(proposals));
+    }
+
     private void renderLists(String query) {
         List<Society> mySocieties    = new ArrayList<>();
         List<String>  myIds          = new ArrayList<>();

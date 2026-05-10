@@ -186,41 +186,61 @@ public class EventsFragment extends Fragment {
             return;
         }
 
-        DatabaseReference regRef = FirebaseDatabase.getInstance()
-                .getReference("Societies")
-                .child(event.getSocietyId())
-                .child("events")
-                .child(event.getId())
-                .child("registrations")
-                .child(currentUid);
-
         boolean alreadyRegistered = event.isRegistered(currentUid);
 
         if (alreadyRegistered) {
-            // Unregister
-            regRef.removeValue()
-                    .addOnSuccessListener(unused ->
-                            Toast.makeText(getContext(),
-                                    "Unregistered from " + event.getTitle(),
-                                    Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(),
-                                    "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        } else {
-            // Register — store uid: true
-            regRef.setValue(true)
-                    .addOnSuccessListener(unused ->
-                            Toast.makeText(getContext(),
-                                    "Registered for " + event.getTitle() + "!",
-                                    Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(),
-                                    "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        }
-        // The live listener on societiesRef will automatically re-render the lists
-        // with updated registration state, so no manual notifyItemChanged needed
-    }
+            // Confirmation before unregistering
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Cancel Registration")
+                    .setMessage("Are you sure you want to unregister from \"" + event.getTitle() + "\"?")
+                    .setPositiveButton("Unregister", (dialog, which) -> {
+                        FirebaseDatabase.getInstance()
+                                .getReference("Societies")
+                                .child(event.getSocietyId())
+                                .child("events")
+                                .child(event.getId())
+                                .child("registrations")
+                                .child(currentUid)
+                                .removeValue()
+                                .addOnSuccessListener(unused ->
+                                        Toast.makeText(getContext(),
+                                                "Unregistered from " + event.getTitle(),
+                                                Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(getContext(),
+                                                "Failed: " + e.getMessage(),
+                                                Toast.LENGTH_SHORT).show());
+                    })
+                    .setNegativeButton("Keep", null)
+                    .show();
 
+        } else {
+            // Confirmation before registering
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Register for Event")
+                    .setMessage("Register for \"" + event.getTitle() + "\" on " + event.getDay() + " " + event.getMonth() + "?")
+                    .setPositiveButton("Register", (dialog, which) -> {
+                        FirebaseDatabase.getInstance()
+                                .getReference("Societies")
+                                .child(event.getSocietyId())
+                                .child("events")
+                                .child(event.getId())
+                                .child("registrations")
+                                .child(currentUid)
+                                .setValue(true)
+                                .addOnSuccessListener(unused ->
+                                        Toast.makeText(getContext(),
+                                                "Registered for " + event.getTitle() + "!",
+                                                Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(getContext(),
+                                                "Failed: " + e.getMessage(),
+                                                Toast.LENGTH_SHORT).show());
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
+    }
     // ── Helpers ───────────────────────────────────────────────────────────────
     private boolean matchesQuery(SocietyEvent e, String query) {
         if (e.getTitle()       != null && e.getTitle().toLowerCase().contains(query))       return true;
