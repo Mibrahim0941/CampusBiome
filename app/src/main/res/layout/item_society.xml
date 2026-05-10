@@ -7,9 +7,11 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     android:foreground="?attr/selectableItemBackground"
-    app:cardCornerRadius="14dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/card_bg">
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="16dp"
+    app:strokeColor="#E1E3E4"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -96,7 +98,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/divider"
+            android:background="#FFFFFF"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="10dp"/>
 
