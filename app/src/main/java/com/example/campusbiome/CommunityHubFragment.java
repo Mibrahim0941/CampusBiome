@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -37,6 +38,19 @@ public class CommunityHubFragment extends Fragment {
                 case 1: tab.setText("Societies"); break;
                 case 2: tab.setText("Events"); break;
             }
+
+
         }).attach();
+        tabLayout.post(() -> {
+            for (int i = 0; i < tabLayout.getTabCount(); i++) {
+                TabLayout.Tab tab = tabLayout.getTabAt(i);
+                if (tab != null && tab.view != null) {
+                    tab.view.setBackground(
+                            ContextCompat.getDrawable(requireContext(), R.drawable.tab_pill_selector)
+                    );
+                    tab.view.setPadding(0, 8, 0, 8);
+                }
+            }
+        });
     }
 }
