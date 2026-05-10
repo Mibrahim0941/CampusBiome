@@ -128,8 +128,8 @@ public class AdminSocietiesFragment extends Fragment {
                         
                         if (adminProposedName == null) adminProposedName = "Society Admin";
                         
-                        // Generate email from name: e.g., "Bisma" -> "bisma@gmail.com"
-                        String finalEmail = adminProposedName.replaceAll("\\s+", "").toLowerCase() + "@gmail.com";
+                        // Generate email from name: e.g., "Bisma" -> "bisma@societyadmin.com"
+                        String finalEmail = adminProposedName.replaceAll("\\s+", "").toLowerCase() + "@societyadmin.com";
                         String defaultPassword = "123456";
                         String finalAdminName = adminProposedName;
 
@@ -156,6 +156,7 @@ public class AdminSocietiesFragment extends Fragment {
                                 userData.put("email", finalEmail);
                                 userData.put("role", "society_manager");
                                 userData.put("status", "approved");
+                                userData.put("societyId", societyId);
                                 mDatabase.child("Users").child(newAdminUid).setValue(userData);
 
                                 // 2. Update Society Record

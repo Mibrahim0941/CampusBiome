@@ -184,7 +184,7 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+ ADD"
+                        android:text=" ADD"
                         android:textColor="#006B5E"
                         android:textSize="12sp"
                         app:icon="@android:drawable/ic_input_add"
