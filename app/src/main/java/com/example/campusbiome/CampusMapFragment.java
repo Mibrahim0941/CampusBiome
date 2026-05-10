@@ -32,7 +32,10 @@ public class CampusMapFragment extends Fragment {
             campusMapView.setOnBuildingClickListener(new CampusMapView.OnBuildingClickListener() {
                 @Override
                 public void onBuildingClick(String buildingName) {
-                    android.widget.Toast.makeText(requireContext(), "Selected: " + buildingName, android.widget.Toast.LENGTH_SHORT).show();
+                    if (getActivity() instanceof StudentDashboardActivity) {
+                        BuildingFloorplanFragment floorplanFragment = BuildingFloorplanFragment.newInstance(buildingName);
+                        ((StudentDashboardActivity) getActivity()).openFragment(floorplanFragment);
+                    }
                 }
             });
 
@@ -54,6 +57,17 @@ public class CampusMapFragment extends Fragment {
             });
         }
         
+        android.widget.ImageView btnInfo = view.findViewById(R.id.btnInfo);
+        if (btnInfo != null) {
+            btnInfo.setOnClickListener(v -> {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Campus Map Info")
+                        .setMessage("Instructions:\n- Pinch to zoom in/out.\n- Drag to pan around the map.\n- Tap a building to view its detailed floorplans.\n\nDensity Legend:\n🔴 High (Busy)\n🟠 Medium (Moderate)\n🟢 Low (Quiet)")
+                        .setPositiveButton("Got it", null)
+                        .show();
+            });
+        }
+
         loadMapDataFromFirebase();
     }
     

@@ -319,9 +319,11 @@ public class AdminCampusMapFragment extends Fragment {
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/svg+xml");
+        intent.setType("image/*");
+        String[] mimeTypes = {"image/svg+xml", "image/png"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        filePickerLauncher.launch(Intent.createChooser(intent, "Select SVG Map"));
+        filePickerLauncher.launch(Intent.createChooser(intent, "Select SVG or PNG Map"));
     }
 
     private void uploadSvgToDrive(Uri uri) {
@@ -336,7 +338,27 @@ public class AdminCampusMapFragment extends Fragment {
                     byteBuffer.write(buffer, 0, len);
                 }
                 byte[] bytes = byteBuffer.toByteArray();
-                String base64Content = Base64.encodeToString(bytes, Base64.DEFAULT);
+                
+                String mimeType = getContext().getContentResolver().getType(uri);
+                String base64Content;
+
+                if ("image/png".equals(mimeType)) {
+                    // Wrap the PNG in an SVG so it can be parsed natively by CampusMapView
+                    android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                    int width = options.outWidth > 0 ? options.outWidth : 1000;
+                    int height = options.outHeight > 0 ? options.outHeight : 1000;
+                    
+                    String base64Png = Base64.encodeToString(bytes, Base64.DEFAULT).replaceAll("\\s+", "");
+                    String svgWrapper = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 " + width + " " + height + "\" width=\"" + width + "\" height=\"" + height + "\">\n" +
+                                        "  <!-- map_background -->\n" +
+                                        "  <image href=\"data:image/png;base64," + base64Png + "\" x=\"0\" y=\"0\" width=\"" + width + "\" height=\"" + height + "\" />\n" +
+                                        "</svg>";
+                    base64Content = Base64.encodeToString(svgWrapper.getBytes(), Base64.DEFAULT);
+                } else {
+                    base64Content = Base64.encodeToString(bytes, Base64.DEFAULT);
+                }
 
                 String filename;
                 if (currentViewMode.equals("MAIN")) {

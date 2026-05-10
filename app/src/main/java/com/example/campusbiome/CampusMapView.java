@@ -64,9 +64,9 @@ public class CampusMapView extends View {
     private OnTransformChangeListener transformListener;
 
     private static final List<String> CLICKABLE_BUILDINGS = Arrays.asList(
-            "civil_block", "Lib_block", "path7", "F_block", "D_block", "open_cafe",
+            "civil_block", "Lib_block", "F_block", "D_block",
             "A_block", "B_block", "C_block", "E_block", "G_block", "H_block", "admin_block",
-            "library_block", "old_cafe", "badminton", "cricket_ground", "Futsal", "Basketball", "bike_parking"
+            "library_block"
     );
 
     public interface OnBuildingClickListener {
@@ -185,6 +185,38 @@ public class CampusMapView extends View {
                                 }
                             }
                         }
+                    } else if ("text".equalsIgnoreCase(tagName)) {
+                        String xStr = parser.getAttributeValue(null, "x");
+                        String yStr = parser.getAttributeValue(null, "y");
+                        String fill = parser.getAttributeValue(null, "fill");
+                        String fontSize = parser.getAttributeValue(null, "font-size");
+                        String textAnchor = parser.getAttributeValue(null, "text-anchor");
+                        String transform = parser.getAttributeValue(null, "transform");
+
+                        float x = xStr != null ? Float.parseFloat(xStr) : 0f;
+                        float y = yStr != null ? Float.parseFloat(yStr) : 0f;
+                        int color = fill != null ? Color.parseColor(fill) : Color.BLACK;
+                        float size = fontSize != null ? Float.parseFloat(fontSize) : 12f;
+
+                        float rot = 0f, rotX = 0f, rotY = 0f;
+                        if (transform != null && transform.startsWith("rotate(")) {
+                            try {
+                                String inner = transform.substring(7, transform.length() - 1);
+                                String[] parts = inner.split(",");
+                                if (parts.length >= 1) rot = Float.parseFloat(parts[0].trim());
+                                if (parts.length >= 3) {
+                                    rotX = Float.parseFloat(parts[1].trim());
+                                    rotY = Float.parseFloat(parts[2].trim());
+                                }
+                            } catch (Exception e) {
+                                Log.e("CampusMapView", "Error parsing text transform", e);
+                            }
+                        }
+
+                        String textContent = parser.nextText();
+                        if (textContent != null && !textContent.trim().isEmpty()) {
+                            mapElements.add(new MapElement(currentCommentName, textContent.trim(), x, y, size, color, textAnchor, rot, rotX, rotY));
+                        }
                     } else if ("path".equalsIgnoreCase(tagName)) {
                         String d = parser.getAttributeValue(null, "d");
                         String fill = parser.getAttributeValue(null, "fill");
@@ -291,15 +323,42 @@ public class CampusMapView extends View {
             if (el.bitmap != null && el.imageBounds != null) {
                 canvas.drawBitmap(el.bitmap, null, el.imageBounds, paint);
             } else if (el.path != null) {
-                paint.setColor(el.color);
+                if (el.isClickable) {
+                    paint.setColor(Color.parseColor("#90CAF9")); // Slightly darker blue for clickable buildings
+                } else if ("out_of_bounds".equalsIgnoreCase(el.name) || "Out of Bounds".equalsIgnoreCase(el.name)) {
+                    paint.setColor(Color.parseColor("#a1a1a14f")); // 75% Transparent grey for out of bounds
+                } else {
+                    paint.setColor(el.color);
+                }
                 canvas.drawPath(el.path, paint);
 
                 if (el.isClickable) {
                     paint.setStyle(Paint.Style.STROKE);
-                    paint.setColor(Color.DKGRAY);
+                    paint.setColor(Color.parseColor("#1E88E5")); // Accent Blue border
                     paint.setStrokeWidth(2f / (baseScaleFactor * currentScale)); // Keep stroke width consistent
                     canvas.drawPath(el.path, paint);
                     paint.setStyle(Paint.Style.FILL);
+                }
+            } else if (el.textContent != null) {
+                paint.setColor(Color.BLACK); // Force black text
+                paint.setTextSize(el.textSize);
+                paint.setTypeface(android.graphics.Typeface.create(android.graphics.Typeface.SANS_SERIF, android.graphics.Typeface.BOLD));
+                
+                if ("middle".equals(el.textAnchor)) {
+                    paint.setTextAlign(Paint.Align.CENTER);
+                } else if ("end".equals(el.textAnchor)) {
+                    paint.setTextAlign(Paint.Align.RIGHT);
+                } else {
+                    paint.setTextAlign(Paint.Align.LEFT);
+                }
+                
+                if (el.textRotation != 0) {
+                    canvas.save();
+                    canvas.rotate(el.textRotation, el.textRotX, el.textRotY);
+                    canvas.drawText(el.textContent, el.textX, el.textY, paint);
+                    canvas.restore();
+                } else {
+                    canvas.drawText(el.textContent, el.textX, el.textY, paint);
                 }
             }
         }
@@ -453,6 +512,28 @@ public class CampusMapView extends View {
             this.name = name;
             this.bitmap = bitmap;
             this.imageBounds = imageBounds;
+            this.isClickable = false;
+        }
+
+        // For text elements
+        String textContent;
+        float textX, textY, textSize;
+        int textColor;
+        String textAnchor;
+        float textRotation;
+        float textRotX, textRotY;
+
+        MapElement(String name, String textContent, float x, float y, float size, int color, String anchor, float rot, float rotX, float rotY) {
+            this.name = name;
+            this.textContent = textContent;
+            this.textX = x;
+            this.textY = y;
+            this.textSize = size;
+            this.textColor = color;
+            this.textAnchor = anchor;
+            this.textRotation = rot;
+            this.textRotX = rotX;
+            this.textRotY = rotY;
             this.isClickable = false;
         }
     }
