@@ -256,6 +256,18 @@
 
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageWifi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Manage Wi-Fi Routers: OFF"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#4B736B"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_menu_compass"
+                app:iconTint="#FFFFFF" />
+
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>

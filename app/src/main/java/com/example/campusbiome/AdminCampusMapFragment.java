@@ -42,7 +42,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,9 +55,13 @@ public class AdminCampusMapFragment extends Fragment {
     private ProgressBar progressBar;
     private TextView tvMapTitle, tvUploadPrompt, tvCurrentView, tvViewDescription;
     private LinearLayout layoutUploadPrompt, layoutBuildingActions, layoutFloorSelector, containerFloors;
-    private MaterialButton btnUploadSvg, btnUpdateBlockSvg, btnBackToOverview, btnAddFloor;
+    private MaterialButton btnUploadSvg, btnUpdateBlockSvg, btnBackToOverview, btnAddFloor, btnManageWifi;
     private ImageView btnBack;
     private com.google.android.material.floatingactionbutton.FloatingActionButton btnResetMap;
+
+    private boolean isManageWifiMode = false;
+    private ValueEventListener wifiRoutersListener;
+    private DatabaseReference currentWifiRoutersRef;
 
     private DatabaseReference mDatabase;
     private ExecutorService executorService;
@@ -112,6 +118,11 @@ public class AdminCampusMapFragment extends Fragment {
         btnAddFloor = view.findViewById(R.id.btnAddFloor);
         btnBack = view.findViewById(R.id.btnBack);
         btnResetMap = view.findViewById(R.id.btnResetMap);
+        btnManageWifi = view.findViewById(R.id.btnManageWifi);
+
+        if (btnManageWifi != null) {
+            btnManageWifi.setOnClickListener(v -> toggleManageWifiMode());
+        }
 
         btnUploadSvg.setOnClickListener(v -> openFilePicker());
         btnUpdateBlockSvg.setOnClickListener(v -> openFilePicker());
@@ -136,6 +147,147 @@ public class AdminCampusMapFragment extends Fragment {
         }
 
         loadMapData();
+        fetchWifiRouters();
+    }
+
+    private void toggleManageWifiMode() {
+        isManageWifiMode = !isManageWifiMode;
+        if (isManageWifiMode) {
+            btnManageWifi.setText("Manage Wi-Fi Routers: ON");
+            btnManageWifi.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E53935"))); // Red
+            if (campusMapView != null) {
+                campusMapView.setOnMapTapListener((rawX, rawY) -> promptForSSID(rawX, rawY));
+            }
+            Toast.makeText(getContext(), "Tap on the map to drop a router", Toast.LENGTH_SHORT).show();
+        } else {
+            btnManageWifi.setText("Manage Wi-Fi Routers: OFF");
+            btnManageWifi.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4B736B"))); // Green
+            if (campusMapView != null) {
+                campusMapView.setOnMapTapListener(null);
+            }
+        }
+    }
+
+    private void promptForSSID(float rawX, float rawY) {
+        if (getContext() == null) return;
+        EditText input = new EditText(getContext());
+        input.setHint("Enter SSID");
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        input.setPadding(padding, padding, padding, padding);
+        new AlertDialog.Builder(getContext())
+            .setTitle("Add Wi-Fi Router")
+            .setView(input)
+            .setPositiveButton("Save", (dialog, which) -> {
+                String ssid = input.getText().toString().trim();
+                if (!ssid.isEmpty()) {
+                    saveWifiRouter(ssid, rawX, rawY);
+                } else {
+                    Toast.makeText(getContext(), "SSID cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private DatabaseReference getRoutersReference() {
+        if (currentViewMode.equals("MAIN")) {
+            return mDatabase.child("wifi_routers").child("generic_map_routers");
+        } else {
+            if (isMultiFloorBuilding(selectedBuildingId) && selectedFloorNum != null) {
+                return mDatabase.child("wifi_routers").child(selectedBuildingId).child(selectedFloorNum);
+            } else {
+                return mDatabase.child("wifi_routers").child(selectedBuildingId);
+            }
+        }
+    }
+
+    private void saveWifiRouter(String ssid, float rawX, float rawY) {
+        DatabaseReference routersRef = getRoutersReference();
+        String id = routersRef.push().getKey();
+        if (id != null) {
+            com.example.campusbiome.models.WifiRouter router = new com.example.campusbiome.models.WifiRouter(id, ssid, rawX, rawY, 0);
+            routersRef.child(id).setValue(router)
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Router added!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add router: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void fetchWifiRouters() {
+        if (currentWifiRoutersRef != null && wifiRoutersListener != null) {
+            currentWifiRoutersRef.removeEventListener(wifiRoutersListener);
+        }
+        
+        if (currentViewMode.equals("MAIN")) {
+            currentWifiRoutersRef = mDatabase.child("wifi_routers");
+            wifiRoutersListener = currentWifiRoutersRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<com.example.campusbiome.models.WifiRouter> genericRouters = new ArrayList<>();
+                    Map<String, Integer> buildingDensities = new HashMap<>();
+                    
+                    for (DataSnapshot childNode : snapshot.getChildren()) {
+                        String nodeKey = childNode.getKey();
+                        if ("generic_map_routers".equals(nodeKey)) {
+                            for (DataSnapshot ds : childNode.getChildren()) {
+                                com.example.campusbiome.models.WifiRouter router = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                                if (router != null) genericRouters.add(router);
+                            }
+                        } else {
+                            int buildingTotalDevices = 0;
+                            boolean hasData = false;
+                            for (DataSnapshot ds : childNode.getChildren()) {
+                                if (ds.hasChild("ssid")) {
+                                    com.example.campusbiome.models.WifiRouter r = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                                    if (r != null) {
+                                        buildingTotalDevices += r.getConnected_devices();
+                                        hasData = true;
+                                    }
+                                } else {
+                                    for (DataSnapshot floorRouterDs : ds.getChildren()) {
+                                        com.example.campusbiome.models.WifiRouter r = floorRouterDs.getValue(com.example.campusbiome.models.WifiRouter.class);
+                                        if (r != null) {
+                                            buildingTotalDevices += r.getConnected_devices();
+                                            hasData = true;
+                                        }
+                                    }
+                                }
+                            }
+                            if (hasData) {
+                                buildingDensities.put(nodeKey, buildingTotalDevices);
+                            }
+                        }
+                    }
+                    if (campusMapView != null) {
+                        campusMapView.setWifiRouters(genericRouters);
+                        campusMapView.setBuildingDensities(buildingDensities);
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (getContext() != null) Log.e("AdminCampusMap", "Failed: " + error.getMessage());
+                }
+            });
+        } else {
+            currentWifiRoutersRef = getRoutersReference();
+            wifiRoutersListener = currentWifiRoutersRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    List<com.example.campusbiome.models.WifiRouter> routers = new ArrayList<>();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        com.example.campusbiome.models.WifiRouter router = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                        if (router != null) routers.add(router);
+                    }
+                    if (campusMapView != null) {
+                        campusMapView.setWifiRouters(routers);
+                        campusMapView.setBuildingDensities(new HashMap<>()); // clear for building view
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (getContext() != null) Log.e("AdminCampusMap", "Failed: " + error.getMessage());
+                }
+            });
+        }
     }
 
     private boolean isMultiFloorBuilding(String buildingId) {
@@ -206,8 +358,11 @@ public class AdminCampusMapFragment extends Fragment {
                 runOnUiThread(() -> {
                     renderFloorCards(floors);
                     if (!floors.isEmpty()) {
-                        selectedFloorNum = floors.get(0);
+                        if (selectedFloorNum == null || !floors.contains(selectedFloorNum)) {
+                            selectedFloorNum = floors.get(0);
+                        }
                         loadMapData();
+                        fetchWifiRouters();
                     } else {
                         showLoading(false);
                         campusMapView.setVisibility(View.INVISIBLE);
@@ -248,6 +403,7 @@ public class AdminCampusMapFragment extends Fragment {
                 selectedFloorNum = floor;
                 renderFloorCards(floors);
                 loadMapData();
+                fetchWifiRouters();
             });
             
             containerFloors.addView(cardView);
@@ -449,6 +605,7 @@ public class AdminCampusMapFragment extends Fragment {
         }
         
         loadMapData();
+        fetchWifiRouters();
     }
 
     private void backToOverview() {
@@ -465,6 +622,7 @@ public class AdminCampusMapFragment extends Fragment {
         btnBack.setVisibility(View.GONE);
         
         loadMapData();
+        fetchWifiRouters();
     }
 
     private void showLoading(boolean loading) {
