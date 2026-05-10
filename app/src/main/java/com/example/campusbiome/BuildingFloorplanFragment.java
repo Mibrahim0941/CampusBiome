@@ -108,11 +108,20 @@ public class BuildingFloorplanFragment extends Fragment {
     }
 
     private void showInfoDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Floorplan Information")
-                .setMessage("Instructions:\n- Pinch to zoom in/out.\n- Drag to pan around the map.\n- Use the bottom buttons to switch floors.\n\nDensity Legend:\n🔴 High Density\n🟠 Medium Density\n🟢 Low Density")
-                .setPositiveButton("Got it", null)
-                .show();
+        if (getContext() == null) return;
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_map_info, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        com.google.android.material.button.MaterialButton btnGotIt = dialogView.findViewById(R.id.btnGotIt);
+        btnGotIt.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void loadFloorsFromFirebase() {

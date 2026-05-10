@@ -60,11 +60,7 @@ public class CampusMapFragment extends Fragment {
         android.widget.ImageView btnInfo = view.findViewById(R.id.btnInfo);
         if (btnInfo != null) {
             btnInfo.setOnClickListener(v -> {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setTitle("Campus Map Info")
-                        .setMessage("Instructions:\n- Pinch to zoom in/out.\n- Drag to pan around the map.\n- Tap a building to view its detailed floorplans.\n\nDensity Legend:\n🔴 High (Busy)\n🟠 Medium (Moderate)\n🟢 Low (Quiet)")
-                        .setPositiveButton("Got it", null)
-                        .show();
+                showInfoDialog();
             });
         }
 
@@ -137,8 +133,25 @@ public class CampusMapFragment extends Fragment {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                android.widget.Toast.makeText(getContext(), message, android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(getContext(), "Failed to load map: " + message, android.widget.Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void showInfoDialog() {
+        if (getContext() == null) return;
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_map_info, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        com.google.android.material.button.MaterialButton btnGotIt = dialogView.findViewById(R.id.btnGotIt);
+        btnGotIt.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }
