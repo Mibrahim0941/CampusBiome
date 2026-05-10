@@ -51,7 +51,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnLogout = findViewById(R.id.btnLogout);
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
-        ImageView btnNotifications = findViewById(R.id.btnNotifications);
 
         navHome = findViewById(R.id.navHome);
         navProfessors = findViewById(R.id.navProfessors);
@@ -83,7 +82,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
             goToRoleSelection();
         });
 
-        btnNotifications.setOnClickListener(v -> Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show());
 
         fetchAdminName(currentUser.getUid());
 
@@ -112,8 +110,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
         openFragment(new AdminProfileFragment());
     }
 
+    public void switchToManageEvents() {
+        openFragment(new AdminManageEventsFragment());
+    }
+
     public void switchToCampusMap() {
-        // No bottom nav index for this yet, so we don't call updateBottomNav
         openFragment(new AdminCampusMapFragment());
     }
 

@@ -73,6 +73,7 @@ public class AdminSocietiesFragment extends Fragment {
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 for (DataSnapshot societySnapshot : societies) {
                     String name = societySnapshot.child("name").getValue(String.class);
+                    String managerId = societySnapshot.child("managerId").getValue(String.class);
                     String admin = societySnapshot.child("adminName").getValue(String.class);
 
                     View row = inflater.inflate(R.layout.item_admin_society_row, llSocietiesList, false);
@@ -81,6 +82,20 @@ public class AdminSocietiesFragment extends Fragment {
 
                     tvName.setText(name != null ? name : "N/A");
                     tvAdmin.setText(admin != null ? admin : "N/A");
+
+                    // If managerId exists, fetch real-time admin name if not already correct
+                    if (managerId != null) {
+                        mDatabase.child("Users").child(managerId).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                                String realName = userSnapshot.getValue(String.class);
+                                if (realName != null) {
+                                    tvAdmin.setText(realName);
+                                }
+                            }
+                            @Override public void onCancelled(@NonNull DatabaseError error) {}
+                        });
+                    }
 
                     if (isSuspended) {
                         row.setBackgroundColor(android.graphics.Color.parseColor("#FFEBEE")); // Light Red
@@ -108,10 +123,69 @@ public class AdminSocietiesFragment extends Fragment {
                     ((TextView) card.findViewById(R.id.tvDetailAdmin)).setText("Proposed Admin: " + admin);
 
                     card.findViewById(R.id.btnAccept).setOnClickListener(v -> {
-                        mDatabase.child("Societies").child(societyId).child("status").setValue("approved")
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), name + " Approved", Toast.LENGTH_SHORT).show();
-                                fetchSocieties();
+                        String adminProposedName = societySnapshot.child("adminName").getValue(String.class);
+                        String proposedByUid = societySnapshot.child("proposedByUid").getValue(String.class);
+                        
+                        if (adminProposedName == null) adminProposedName = "Society Admin";
+                        
+                        // Generate email from name: e.g., "Bisma" -> "bisma@gmail.com"
+                        String finalEmail = adminProposedName.replaceAll("\\s+", "").toLowerCase() + "@gmail.com";
+                        String defaultPassword = "123456";
+                        String finalAdminName = adminProposedName;
+
+                        // Use Secondary Firebase to create the new Society Admin account
+                        com.google.firebase.FirebaseOptions options = com.google.firebase.FirebaseApp.getInstance().getOptions();
+                        String appName = "SocietyAdmin_" + System.currentTimeMillis();
+                        com.google.firebase.FirebaseApp tempApp;
+                        try {
+                            tempApp = com.google.firebase.FirebaseApp.initializeApp(getContext(), options, appName);
+                        } catch (Exception e) {
+                            tempApp = com.google.firebase.FirebaseApp.getInstance(appName);
+                        }
+                        final com.google.firebase.FirebaseApp secondaryApp = tempApp;
+                        
+                        com.google.firebase.auth.FirebaseAuth secondaryAuth = com.google.firebase.auth.FirebaseAuth.getInstance(secondaryApp);
+                        secondaryAuth.createUserWithEmailAndPassword(finalEmail, defaultPassword)
+                            .addOnSuccessListener(authResult -> {
+                                String newAdminUid = authResult.getUser().getUid();
+                                
+                                // 1. Create User Record
+                                java.util.Map<String, Object> userData = new java.util.HashMap<>();
+                                userData.put("id", newAdminUid);
+                                userData.put("name", finalAdminName);
+                                userData.put("email", finalEmail);
+                                userData.put("role", "society_manager");
+                                userData.put("status", "approved");
+                                mDatabase.child("Users").child(newAdminUid).setValue(userData);
+
+                                // 2. Update Society Record
+                                java.util.Map<String, Object> updates = new java.util.HashMap<>();
+                                updates.put("status", "approved");
+                                updates.put("managerId", newAdminUid);
+                                updates.put("adminName", finalAdminName); // Keep adminName for quick display
+                                
+                                mDatabase.child("Societies").child(societyId).updateChildren(updates)
+                                    .addOnSuccessListener(aVoid -> {
+                                        // 3. Send Notification to the proposer
+                                        if (proposedByUid != null) {
+                                            java.util.Map<String, Object> notifData = new java.util.HashMap<>();
+                                            notifData.put("title", "Society Approved: " + name);
+                                            notifData.put("message", "Congratulations! Your society proposal has been accepted. Your manager account is: " + finalEmail + " with password: " + defaultPassword + ". Log in as Society Manager to manage it.");
+                                            notifData.put("timestamp", System.currentTimeMillis());
+                                            notifData.put("type", "alert");
+                                            notifData.put("isRead", false);
+                                            
+                                            mDatabase.child("Notifications").child(proposedByUid).push().setValue(notifData);
+                                        }
+
+                                        Toast.makeText(getContext(), name + " Approved and Admin Account Created", Toast.LENGTH_LONG).show();
+                                        secondaryApp.delete();
+                                        fetchSocieties();
+                                    });
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Auth Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                secondaryApp.delete();
                             });
                     });
 

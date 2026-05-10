@@ -148,13 +148,13 @@
                     </RelativeLayout>
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Visiting" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvVisiting" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lecturers" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvLecturers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="18dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lab Instructors" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
-                        <TextView android:id="@+id/tvLabInstructors" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Professors" android:textColor="@color/text_primary" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                        <TextView android:id="@+id/tvProfessors" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="--" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-black" />
                     </RelativeLayout>
 
                     <com.google.android.material.card.MaterialCardView

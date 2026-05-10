@@ -28,7 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 public class AdminDashboardFragment extends Fragment {
 
     private TextView tvTotalStudents, tvDefaulters;
-    private TextView tvTotalStaff, tvVisiting, tvLabInstructors;
+    private TextView tvTotalStaff, tvLecturers, tvProfessors;
     private TextView tvTotalSocieties, tvPendingSocieties;
     private MaterialCardView btnShowStudentsCard, btnManageFacultyCard, btnManageSocietiesCard;
     private MaterialCardView btnNewAnnouncement, btnManageEvents, btnSeeCampusMap;
@@ -47,8 +47,8 @@ public class AdminDashboardFragment extends Fragment {
 
         
         tvTotalStaff = view.findViewById(R.id.tvTotalStaff);
-        tvVisiting = view.findViewById(R.id.tvVisiting);
-        tvLabInstructors = view.findViewById(R.id.tvLabInstructors);
+        tvLecturers = view.findViewById(R.id.tvLecturers);
+        tvProfessors = view.findViewById(R.id.tvProfessors);
         
         tvTotalSocieties = view.findViewById(R.id.tvTotalSocieties);
         tvPendingSocieties = view.findViewById(R.id.tvPendingSocieties);
@@ -79,7 +79,11 @@ public class AdminDashboardFragment extends Fragment {
         });
 
         btnNewAnnouncement.setOnClickListener(v -> showAnnouncementDialog());
-        btnManageEvents.setOnClickListener(v -> Toast.makeText(getContext(), "Manage Events Feature", Toast.LENGTH_SHORT).show());
+        btnManageEvents.setOnClickListener(v -> {
+            if (getActivity() instanceof AdminDashboardActivity) {
+                ((AdminDashboardActivity) getActivity()).switchToManageEvents();
+            }
+        });
         btnSeeCampusMap.setOnClickListener(v -> {
              if (getActivity() instanceof AdminDashboardActivity) {
                  ((AdminDashboardActivity) getActivity()).switchToCampusMap();
@@ -144,21 +148,26 @@ public class AdminDashboardFragment extends Fragment {
                 if (!isAdded()) return;
 
                 int faculty = 0;
-                int visiting = 0;
-                int labInstructors = 0;
+                int lecturers = 0;
+                int professors = 0;
 
                 for (DataSnapshot facultySnapshot : snapshot.getChildren()) {
                     faculty++;
                     String post = facultySnapshot.child("post").getValue(String.class);
-                    if ("Visiting".equalsIgnoreCase(post)) {
-                        visiting++;
-                    } else if ("Lab Instructor".equalsIgnoreCase(post)) {
-                        labInstructors++;
+                    if (post == null) post = facultySnapshot.child("position").getValue(String.class);
+                    
+                    if (post != null) {
+                        post = post.trim();
+                        if ("Lecturer".equalsIgnoreCase(post)) {
+                            lecturers++;
+                        } else if ("Professor".equalsIgnoreCase(post)) {
+                            professors++;
+                        }
                     }
                 }
                 tvTotalStaff.setText(String.valueOf(faculty));
-                tvVisiting.setText(String.valueOf(visiting));
-                tvLabInstructors.setText(String.valueOf(labInstructors));
+                tvLecturers.setText(String.valueOf(lecturers));
+                tvProfessors.setText(String.valueOf(professors));
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
