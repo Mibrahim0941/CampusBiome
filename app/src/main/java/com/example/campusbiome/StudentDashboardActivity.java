@@ -12,7 +12,13 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
@@ -64,7 +70,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
         llEventsContainer = findViewById(R.id.llEventsContainer);
         llHomeNotifications = findViewById(R.id.llHomeNotifications);
 
-        navHome.setOnClickListener(v ->      { updateNavSelection(0); showHome(); });
+        navHome.setOnClickListener(v -> { updateNavSelection(0); showHome(); });
+
         navMap.setOnClickListener(v ->       { updateNavSelection(1); openFragment(new CampusMapFragment()); });
         navTimetable.setOnClickListener(v -> { updateNavSelection(2); openFragment(new TimetableFragment()); });
         navProfessors.setOnClickListener(v ->{ updateNavSelection(3); openFragment(new ProfessorsFragment()); });
@@ -106,6 +113,41 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             showHome();
+        }
+        
+        checkAndStartWifiService();
+    }
+
+    private static final int PERMISSION_REQUEST_CODE = 123;
+
+    private void checkAndStartWifiService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                }, PERMISSION_REQUEST_CODE);
+                return;
+            }
+        }
+        
+        Intent serviceIntent = new Intent(this, WifiScannerService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkAndStartWifiService();
+            } else {
+                Toast.makeText(this, "Location permission is required to track Campus Wi-Fi density.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
