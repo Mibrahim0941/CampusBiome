@@ -13,6 +13,9 @@ public class CampusMapFragment extends Fragment {
     private CampusMapView campusMapView;
     private android.widget.ProgressBar progressBar;
 
+    private com.google.firebase.database.ValueEventListener wifiRoutersListener;
+    private com.google.firebase.database.DatabaseReference currentWifiRoutersRef;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -69,6 +72,7 @@ public class CampusMapFragment extends Fragment {
     
     private void loadMapDataFromFirebase() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        fetchWifiRouters();
         
         com.google.firebase.database.DatabaseReference ref = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("campus_layout/map_svg_url");
         ref.addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
@@ -136,6 +140,67 @@ public class CampusMapFragment extends Fragment {
                 android.widget.Toast.makeText(getContext(), "Failed to load map: " + message, android.widget.Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void fetchWifiRouters() {
+        if (currentWifiRoutersRef != null && wifiRoutersListener != null) {
+            currentWifiRoutersRef.removeEventListener(wifiRoutersListener);
+        }
+        currentWifiRoutersRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("campus_layout/wifi_routers");
+        wifiRoutersListener = currentWifiRoutersRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull com.google.firebase.database.DataSnapshot snapshot) {
+                java.util.List<com.example.campusbiome.models.WifiRouter> routers = new java.util.ArrayList<>();
+                java.util.Map<String, Integer> buildingDensities = new java.util.HashMap<>();
+                
+                for (com.google.firebase.database.DataSnapshot childNode : snapshot.getChildren()) {
+                    String nodeKey = childNode.getKey();
+                    if ("generic_map_routers".equals(nodeKey)) {
+                        for (com.google.firebase.database.DataSnapshot ds : childNode.getChildren()) {
+                            com.example.campusbiome.models.WifiRouter router = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                            if (router != null) routers.add(router);
+                        }
+                    } else {
+                        // It's a building node
+                        int buildingTotalDevices = 0;
+                        boolean hasData = false;
+                        for (com.google.firebase.database.DataSnapshot ds : childNode.getChildren()) {
+                            if (ds.hasChild("ssid")) {
+                                // It's a direct router
+                                com.example.campusbiome.models.WifiRouter r = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                                if (r != null) {
+                                    buildingTotalDevices += r.getConnected_devices();
+                                    hasData = true;
+                                }
+                            } else {
+                                // It's a floor node containing routers
+                                for (com.google.firebase.database.DataSnapshot floorRouterDs : ds.getChildren()) {
+                                    com.example.campusbiome.models.WifiRouter r = floorRouterDs.getValue(com.example.campusbiome.models.WifiRouter.class);
+                                    if (r != null) {
+                                        buildingTotalDevices += r.getConnected_devices();
+                                        hasData = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (hasData) {
+                            buildingDensities.put(nodeKey, buildingTotalDevices);
+                        }
+                    }
+                }
+                
+                if (campusMapView != null) {
+                    campusMapView.setWifiRouters(routers);
+                    campusMapView.setBuildingDensities(buildingDensities);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) {
+                if (getContext() != null && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    android.util.Log.e("CampusMap", "Failed to fetch routers: " + error.getMessage());
+                }
+            }
+        });
     }
 
     private void showInfoDialog() {

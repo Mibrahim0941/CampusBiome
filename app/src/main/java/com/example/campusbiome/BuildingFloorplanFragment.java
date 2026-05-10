@@ -46,6 +46,9 @@ public class BuildingFloorplanFragment extends Fragment {
     private List<String> floorKeys = new ArrayList<>();
     private String selectedFloorKey = null;
 
+    private ValueEventListener wifiRoutersListener;
+    private DatabaseReference currentWifiRoutersRef;
+
     public static BuildingFloorplanFragment newInstance(String buildingName) {
         BuildingFloorplanFragment fragment = new BuildingFloorplanFragment();
         Bundle args = new Bundle();
@@ -151,6 +154,7 @@ public class BuildingFloorplanFragment extends Fragment {
                         selectedFloorKey = floorKeys.contains("G") ? "G" : floorKeys.get(0);
                         populateFloorPills();
                         loadSvgForFloor(selectedFloorKey);
+                        fetchWifiRouters(selectedFloorKey);
                     } else {
                         floorplanProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "No floorplans uploaded yet.", Toast.LENGTH_SHORT).show();
@@ -202,6 +206,7 @@ public class BuildingFloorplanFragment extends Fragment {
                     selectedFloorKey = floorKey;
                     populateFloorPills(); // Refresh UI
                     loadSvgForFloor(selectedFloorKey);
+                    fetchWifiRouters(selectedFloorKey);
                 }
             });
             llFloorPills.addView(card);
@@ -257,6 +262,36 @@ public class BuildingFloorplanFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to load floorplan: " + message, Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void fetchWifiRouters(String floorKey) {
+        if (currentWifiRoutersRef != null && wifiRoutersListener != null) {
+            currentWifiRoutersRef.removeEventListener(wifiRoutersListener);
+        }
+        currentWifiRoutersRef = FirebaseDatabase.getInstance().getReference("campus_layout")
+                .child("wifi_routers")
+                .child(buildingName)
+                .child(floorKey);
+                
+        wifiRoutersListener = currentWifiRoutersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<com.example.campusbiome.models.WifiRouter> routers = new ArrayList<>();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    com.example.campusbiome.models.WifiRouter router = ds.getValue(com.example.campusbiome.models.WifiRouter.class);
+                    if (router != null) routers.add(router);
+                }
+                if (floorplanMapView != null) {
+                    floorplanMapView.setWifiRouters(routers);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Log.e("BuildingFloorplan", "Failed to fetch routers: " + error.getMessage());
+                }
+            }
+        });
     }
 
     private int dpToPx(int dp) {

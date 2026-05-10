@@ -62,6 +62,10 @@ public class CampusMapView extends View {
 
     private OnBuildingClickListener listener;
     private OnTransformChangeListener transformListener;
+    private OnMapTapListener tapListener;
+    
+    private List<com.example.campusbiome.models.WifiRouter> wifiRouters = new ArrayList<>();
+    private java.util.Map<String, Integer> buildingDensities = new java.util.HashMap<>();
 
     private static final List<String> CLICKABLE_BUILDINGS = Arrays.asList(
             "civil_block", "Lib_block", "F_block", "D_block",
@@ -75,6 +79,10 @@ public class CampusMapView extends View {
 
     public interface OnTransformChangeListener {
         void onTransformChanged(boolean isModified);
+    }
+
+    public interface OnMapTapListener {
+        void onMapTap(float rawX, float rawY);
     }
 
     public CampusMapView(Context context) {
@@ -98,6 +106,20 @@ public class CampusMapView extends View {
 
     public void setOnTransformChangeListener(OnTransformChangeListener listener) {
         this.transformListener = listener;
+    }
+
+    public void setOnMapTapListener(OnMapTapListener listener) {
+        this.tapListener = listener;
+    }
+
+    public void setWifiRouters(List<com.example.campusbiome.models.WifiRouter> routers) {
+        this.wifiRouters = routers;
+        invalidate();
+    }
+
+    public void setBuildingDensities(java.util.Map<String, Integer> densities) {
+        this.buildingDensities = densities;
+        invalidate();
     }
 
     private void init(Context context) {
@@ -362,6 +384,111 @@ public class CampusMapView extends View {
                 }
             }
         }
+        // Draw WiFi Routers Heatmap
+        if (wifiRouters != null && !wifiRouters.isEmpty()) {
+            Paint gradientPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            gradientPaint.setStyle(Paint.Style.FILL);
+            
+            Paint wifiPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            wifiPaint.setColor(Color.WHITE);
+            wifiPaint.setStrokeWidth(1.2f);
+            wifiPaint.setStrokeCap(Paint.Cap.ROUND);
+            
+            Paint coreDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            coreDotPaint.setStyle(Paint.Style.FILL);
+            
+            for (com.example.campusbiome.models.WifiRouter router : wifiRouters) {
+                int devices = router.getConnected_devices();
+                int coreColor;
+                if (devices <= 10) {
+                    coreColor = Color.parseColor("#43A047"); // Green
+                } else if (devices <= 30) {
+                    coreColor = Color.parseColor("#FB8C00"); // Orange
+                } else {
+                    coreColor = Color.parseColor("#E53935"); // Red
+                }
+                
+                // Add high opacity to the core color for a very dark gradient center (e.g. 80% alpha = #CC)
+                int centerColor = Color.parseColor(String.format("#CC%s", Integer.toHexString(coreColor).substring(2)));
+                int edgeColor = Color.TRANSPARENT;
+                
+                float cx = router.getX();
+                float cy = router.getY();
+                float radius = 220f; // Extremely spread out radius!
+                
+                // Draw fading heatmap circle
+                gradientPaint.setShader(new android.graphics.RadialGradient(
+                        cx, cy, radius, 
+                        centerColor, edgeColor, 
+                        android.graphics.Shader.TileMode.CLAMP));
+                canvas.drawCircle(cx, cy, radius, gradientPaint);
+                
+                // Draw inner solid dot background for contrast behind the wifi icon
+                coreDotPaint.setColor(coreColor);
+                canvas.drawCircle(cx, cy, 7f, coreDotPaint); 
+                
+                // Draw cute WiFi icon centered inside the core dot
+                // Bottom dot
+                wifiPaint.setStyle(Paint.Style.FILL);
+                canvas.drawCircle(cx, cy + 3.5f, 1f, wifiPaint);
+                
+                // Arcs
+                wifiPaint.setStyle(Paint.Style.STROKE);
+                
+                RectF rect1 = new RectF(cx - 2.5f, cy + 1f, cx + 2.5f, cy + 6f);
+                canvas.drawArc(rect1, 225, 90, false, wifiPaint);
+                
+                RectF rect2 = new RectF(cx - 5f, cy - 1.5f, cx + 5f, cy + 8.5f);
+                canvas.drawArc(rect2, 225, 90, false, wifiPaint);
+                
+                RectF rect3 = new RectF(cx - 7.5f, cy - 4f, cx + 7.5f, cy + 11f);
+                canvas.drawArc(rect3, 225, 90, false, wifiPaint);
+            }
+        }
+
+        // Draw Building Heatmaps
+        if (buildingDensities != null && !buildingDensities.isEmpty()) {
+            Paint bldgGradient = new Paint(Paint.ANTI_ALIAS_FLAG);
+            bldgGradient.setStyle(Paint.Style.FILL);
+            
+            Paint wifiPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            wifiPaint.setColor(Color.WHITE);
+            wifiPaint.setStrokeWidth(1.2f);
+            wifiPaint.setStrokeCap(Paint.Cap.ROUND);
+            
+            Paint coreDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            coreDotPaint.setStyle(Paint.Style.FILL);
+
+            for (MapElement el : mapElements) {
+                if (el.name != null && buildingDensities.containsKey(el.name) && el.path != null) {
+                    int devices = buildingDensities.get(el.name);
+                    int coreColor;
+                    if (devices <= 200) {
+                        coreColor = Color.parseColor("#43A047"); // Green
+                    } else if (devices <= 500) {
+                        coreColor = Color.parseColor("#FB8C00"); // Orange
+                    } else {
+                        coreColor = Color.parseColor("#E53935"); // Red
+                    }
+                    
+                    int centerColor = Color.parseColor(String.format("#CC%s", Integer.toHexString(coreColor).substring(2)));
+                    int edgeColor = Color.TRANSPARENT;
+                    
+                    RectF bounds = new RectF();
+                    el.path.computeBounds(bounds, true);
+                    float cx = bounds.centerX();
+                    float cy = bounds.centerY();
+                    float radius = 55f; // Same huge spread out radius!
+                    
+                    bldgGradient.setShader(new android.graphics.RadialGradient(
+                            cx, cy, radius, 
+                            centerColor, edgeColor, 
+                            android.graphics.Shader.TileMode.CLAMP));
+                    canvas.drawCircle(cx, cy, radius, bldgGradient);
+                }
+            }
+        }
+
         canvas.restore();
     }
 
@@ -458,6 +585,11 @@ public class CampusMapView extends View {
         
         int rawX = (int) pts[0];
         int rawY = (int) pts[1];
+
+        if (tapListener != null) {
+            tapListener.onMapTap(pts[0], pts[1]);
+            return;
+        }
 
         for (MapElement el : mapElements) {
             if (el.isClickable && el.rawRegion != null && el.rawRegion.contains(rawX, rawY)) {
