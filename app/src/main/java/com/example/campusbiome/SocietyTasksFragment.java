@@ -107,7 +107,6 @@ public class SocietyTasksFragment extends Fragment {
                 }
             }
 
-            @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (getContext() != null && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -117,8 +116,8 @@ public class SocietyTasksFragment extends Fragment {
     }
 
     private void openTaskList(SocietyEvent event, String eventId) {
-        SocietyTaskListFragment frag =
-                SocietyTaskListFragment.newInstance(societyId, eventId, event.getTitle());
+        String fullEventDate = event.getDay() + " " + event.getMonth() + " " + event.getYear();
+        SocietyTaskListFragment frag = SocietyTaskListFragment.newInstance(societyId, eventId, event.getTitle(), fullEventDate);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, frag)

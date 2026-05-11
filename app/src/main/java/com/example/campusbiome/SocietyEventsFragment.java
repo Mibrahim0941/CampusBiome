@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -37,12 +38,10 @@ public class SocietyEventsFragment extends Fragment {
     private RecyclerView         rvEvents;
     private FloatingActionButton btnAddEvent;
 
-    // ── Approved events shown in list ─────────────────────────────────────────
-    private final List<SocietyEvent> eventList = new ArrayList<>();
-    private final List<String>       eventIds  = new ArrayList<>();
+    private final List<SocietyEvent> eventList   = new ArrayList<>();
+    private final List<String>       eventIds    = new ArrayList<>();
     private SocietyEventAdapter adapter;
 
-    // ── Pending events shown in pending section ───────────────────────────────
     private final List<SocietyEvent> pendingList = new ArrayList<>();
     private final List<String>       pendingIds  = new ArrayList<>();
     private SocietyEventAdapter pendingAdapter;
@@ -53,16 +52,36 @@ public class SocietyEventsFragment extends Fragment {
     private DatabaseReference dbRef;
     private String societyId;
 
+    // Month name → Calendar int (handles both "JAN" and "January" styles)
+    private static int monthToInt(String month) {
+        if (month == null || month.length() < 3) return -1;
+        switch (month.trim().toUpperCase().substring(0, 3)) {
+            case "JAN": return Calendar.JANUARY;
+            case "FEB": return Calendar.FEBRUARY;
+            case "MAR": return Calendar.MARCH;
+            case "APR": return Calendar.APRIL;
+            case "MAY": return Calendar.MAY;
+            case "JUN": return Calendar.JUNE;
+            case "JUL": return Calendar.JULY;
+            case "AUG": return Calendar.AUGUST;
+            case "SEP": return Calendar.SEPTEMBER;
+            case "OCT": return Calendar.OCTOBER;
+            case "NOV": return Calendar.NOVEMBER;
+            case "DEC": return Calendar.DECEMBER;
+            default:    return -1;
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_society_events, container, false);
 
-        rvEvents       = view.findViewById(R.id.rvEvents);
-        btnAddEvent    = view.findViewById(R.id.btnAddEvent);
-        rvPendingEvents = view.findViewById(R.id.rvPendingEvents);   // new view — see layout
-        pendingSection  = view.findViewById(R.id.pendingSection);     // new view — see layout
+        rvEvents        = view.findViewById(R.id.rvEvents);
+        btnAddEvent     = view.findViewById(R.id.btnAddEvent);
+        rvPendingEvents = view.findViewById(R.id.rvPendingEvents);
+        pendingSection  = view.findViewById(R.id.pendingSection);
 
         rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -75,11 +94,9 @@ public class SocietyEventsFragment extends Fragment {
             return view;
         }
 
-        // Approved events — show "View Registrations" button
         adapter = new SocietyEventAdapter(eventList, eventIds, this::openRegistrations);
         rvEvents.setAdapter(adapter);
 
-        // Pending events — no action button (read-only preview for the manager)
         if (rvPendingEvents != null) {
             rvPendingEvents.setLayoutManager(new LinearLayoutManager(getContext()));
             pendingAdapter = new SocietyEventAdapter(pendingList, pendingIds, null);
@@ -92,21 +109,18 @@ public class SocietyEventsFragment extends Fragment {
                 .child("events");
 
         loadEvents();
-
         btnAddEvent.setOnClickListener(v -> showAddEventDialog());
 
         return view;
     }
 
-    // ── Load and split events by status ──────────────────────────────────────
+    // ── Load & split by status ────────────────────────────────────────────────
     private void loadEvents() {
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                eventList.clear();
-                eventIds.clear();
-                pendingList.clear();
-                pendingIds.clear();
+                eventList.clear();   eventIds.clear();
+                pendingList.clear(); pendingIds.clear();
 
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     SocietyEvent event = snap.getValue(SocietyEvent.class);
@@ -116,30 +130,23 @@ public class SocietyEventsFragment extends Fragment {
                     String status = event.getStatus();
 
                     if ("approved".equalsIgnoreCase(status)) {
-                        // ✅ Only approved events appear in the main list
                         eventList.add(0, event);
                         eventIds.add(0, snap.getKey());
                     } else if ("pending".equalsIgnoreCase(status) || status == null) {
-                        // ⏳ Pending events shown in a separate section for the manager
                         pendingList.add(0, event);
                         pendingIds.add(0, snap.getKey());
                     }
-                    // "rejected" events are silently ignored
+                    // "rejected" silently ignored
                 }
 
                 adapter.notifyDataSetChanged();
 
-                // Show/hide pending section
-                if (pendingSection != null) {
-                    pendingSection.setVisibility(
-                            pendingList.isEmpty() ? View.GONE : View.VISIBLE);
-                }
-                if (pendingAdapter != null) {
+                if (pendingSection != null)
+                    pendingSection.setVisibility(pendingList.isEmpty() ? View.GONE : View.VISIBLE);
+                if (pendingAdapter != null)
                     pendingAdapter.notifyDataSetChanged();
-                }
             }
 
-            @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (getContext() != null && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -148,7 +155,7 @@ public class SocietyEventsFragment extends Fragment {
         });
     }
 
-    // ── Open registrations for an approved event ──────────────────────────────
+    // ── Open registrations ────────────────────────────────────────────────────
     private void openRegistrations(SocietyEvent event, String eventId) {
         EventRegistrationsFragment frag =
                 EventRegistrationsFragment.newInstance(societyId, eventId, event.getTitle());
@@ -198,6 +205,14 @@ public class SocietyEventsFragment extends Fragment {
                 return;
             }
 
+            // ── Date validation: event must not be in the past ────────────────
+            if (!isEventDateValid(day, month, year, time, ampm)) {
+                Toast.makeText(getContext(),
+                        "Event date/time cannot be in the past. Please select a future date.",
+                        Toast.LENGTH_LONG).show();
+                return;   // ← stop here; dialog stays open so user can fix it
+            }
+
             addEvent(title, desc, day, month, year, time, ampm, venue);
             dialog.dismiss();
         });
@@ -205,6 +220,51 @@ public class SocietyEventsFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Returns true if the selected date+time is today or in the future.
+     * If time is blank we compare date-only (day granularity).
+     */
+    private boolean isEventDateValid(String day, String month, String year,
+                                     String time, String ampm) {
+        try {
+            int dayInt  = Integer.parseInt(day.trim());
+            int yearInt = Integer.parseInt(year.trim());
+            int monInt  = monthToInt(month);
+            if (monInt == -1) return true; // can't parse → allow through
+
+            // Build event Calendar
+            Calendar eventCal = Calendar.getInstance();
+            eventCal.set(yearInt, monInt, dayInt, 0, 0, 0);
+            eventCal.set(Calendar.MILLISECOND, 0);
+
+            // If time was provided, also set hours and minutes
+            if (!time.isEmpty()) {
+                String[] parts = time.split(":");
+                if (parts.length == 2) {
+                    int hour   = Integer.parseInt(parts[0].trim());
+                    int minute = Integer.parseInt(parts[1].trim());
+
+                    // Convert 12-hour → 24-hour
+                    if ("PM".equalsIgnoreCase(ampm) && hour != 12) hour += 12;
+                    if ("AM".equalsIgnoreCase(ampm) && hour == 12) hour  = 0;
+
+                    eventCal.set(Calendar.HOUR_OF_DAY, hour);
+                    eventCal.set(Calendar.MINUTE, minute);
+                }
+            }
+
+            // Today at midnight for date-only comparison (when no time given)
+            Calendar now = Calendar.getInstance();
+
+            // Event must be >= now
+            return !eventCal.before(now);
+
+        } catch (NumberFormatException e) {
+            return true; // can't parse → allow through
+        }
+    }
+
+    // ── Spinners ──────────────────────────────────────────────────────────────
     private void setupSpinners(Spinner spDay, Spinner spMonth,
                                Spinner spYear, Spinner spAmPm) {
         List<String> days = new ArrayList<>();
@@ -213,7 +273,7 @@ public class SocietyEventsFragment extends Fragment {
         List<String> months = Arrays.asList(
                 "JAN","FEB","MAR","APR","MAY","JUN",
                 "JUL","AUG","SEP","OCT","NOV","DEC");
-        List<String> years = Arrays.asList("2025","2026","2027");
+        List<String> years = Arrays.asList("2026","2027");
         List<String> ampm  = Arrays.asList("AM","PM");
 
         spDay.setAdapter(new ArrayAdapter<>(getContext(),
@@ -226,7 +286,7 @@ public class SocietyEventsFragment extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item, ampm));
     }
 
-    // ── Write new event to Firebase ───────────────────────────────────────────
+    // ── Write to Firebase ─────────────────────────────────────────────────────
     private void addEvent(String title, String desc, String day, String month,
                           String year, String time, String ampm, String venue) {
 
@@ -238,15 +298,11 @@ public class SocietyEventsFragment extends Fragment {
         String createdAt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
                 .format(new Date());
 
-        // Build event — constructor sets status = "pending" automatically
         SocietyEvent event = new SocietyEvent(day, month, year, title, desc, time, ampm, venue);
         event.setCreatedBy(uid);
         event.setCreatedAt(createdAt);
-        // event.status is already "pending" from the constructor
+        // status = "pending" set automatically by constructor
 
-        // ✅ Save only under the society — NOT mirrored to global Events table yet.
-        // The uni admin approves it; their code sets status="approved" and mirrors
-        // to the global Events node at that point.
         dbRef.child(id).setValue(event)
                 .addOnSuccessListener(unused ->
                         Toast.makeText(getContext(),

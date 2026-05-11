@@ -174,7 +174,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="e.g. 11:30"
-                        android:inputType="time"
                         android:textColor="#333333"
                         android:textColorHint="#AAAAAA"/>
 
