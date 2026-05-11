@@ -25,8 +25,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class EventsFragment extends Fragment {
 
@@ -116,6 +120,7 @@ public class EventsFragment extends Fragment {
                         SocietyEvent event = eventSnap.getValue(SocietyEvent.class);
                         if (event == null) continue;
                         if (!"approved".equalsIgnoreCase(event.getStatus())) continue;
+                        if (isPastEvent(event)) continue;
                         // Set transient fields manually
                         event.setId(eventSnap.getKey());
                         event.setSocietyId(societyId);
@@ -131,12 +136,50 @@ public class EventsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Firebase error: " + error.getMessage());
-                Toast.makeText(getContext(), "Failed to load events.", Toast.LENGTH_SHORT).show();
+                // 1. Check if the fragment is still attached to an activity
+                // 2. Check if the user is actually still logged in
+                if (isAdded() && getContext() != null && FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Log.e(TAG, "Firebase read cancelled: " + error.getMessage());
+                    Toast.makeText(getContext(), "Failed to load societies.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Log the error for debugging, but don't bother the user with a Toast
+                    Log.d(TAG, "Listener cancelled due to logout or fragment detachment.");
+                }
             }
         };
 
         societiesRef.addValueEventListener(societiesListener);
+    }
+
+    private boolean isPastEvent(SocietyEvent event) {
+        try {
+            // Construct a date string: e.g., "15 May 2026"
+            // We assume current year if year is not stored in the model
+            Calendar now = Calendar.getInstance();
+            int year = now.get(Calendar.YEAR);
+
+            String dateString = event.getDay() + " " + event.getMonth() + " " + year;
+
+            // Use the same format used in your ScheduleSessionFragment
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            Date eventDate = sdf.parse(dateString);
+
+            if (eventDate == null) return false;
+
+            // Set 'now' to the start of today to allow events happening later today
+            Calendar todayStart = Calendar.getInstance();
+            todayStart.set(Calendar.HOUR_OF_DAY, 0);
+            todayStart.set(Calendar.MINUTE, 0);
+            todayStart.set(Calendar.SECOND, 0);
+            todayStart.set(Calendar.MILLISECOND, 0);
+
+            // If the event date is before the start of today, it's a past event
+            return eventDate.before(todayStart.getTime());
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing date for event: " + event.getTitle());
+            return false; // If date is malformed, show it anyway to be safe
+        }
     }
 
     // ── Render both lists ─────────────────────────────────────────────────────

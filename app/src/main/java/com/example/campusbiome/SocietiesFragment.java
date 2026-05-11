@@ -174,8 +174,15 @@ public class SocietiesFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed: " + error.getMessage());
-                Toast.makeText(getContext(), "Failed to load societies.", Toast.LENGTH_SHORT).show();
+                // 1. Check if the fragment is still attached to an activity
+                // 2. Check if the user is actually still logged in
+                if (isAdded() && getContext() != null && FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Log.e(TAG, "Firebase read cancelled: " + error.getMessage());
+                    Toast.makeText(getContext(), "Failed to load societies.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Log the error for debugging, but don't bother the user with a Toast
+                    Log.d(TAG, "Listener cancelled due to logout or fragment detachment.");
+                }
             }
         };
 

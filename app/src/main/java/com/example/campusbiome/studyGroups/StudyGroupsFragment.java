@@ -147,14 +147,12 @@ public class StudyGroupsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Firebase read cancelled: " + error.getMessage());
-                // ── Most common cause: security rules ──────────────────────────────────
-                // In Firebase Console → Realtime Database → Rules, set:
-                //   { "rules": { ".read": "auth != null", ".write": "auth != null" } }
-                // ──────────────────────────────────────────────────────────────────────
-                Toast.makeText(getContext(),
-                        "Failed to load groups: " + error.getMessage(),
-                        Toast.LENGTH_LONG).show();
+                // Only show toast if the user is still logged in.
+                // If they logged out, "Permission Denied" is expected and should be ignored.
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Log.e(TAG, "Firebase read cancelled: " + error.getMessage());
+                    Toast.makeText(getContext(), "Failed to load groups.", Toast.LENGTH_SHORT).show();
+                }
             }
         };
 
@@ -287,4 +285,5 @@ public class StudyGroupsFragment extends Fragment {
         if (etSearch == null || etSearch.getText() == null) return "";
         return etSearch.getText().toString().trim().toLowerCase();
     }
+
 }

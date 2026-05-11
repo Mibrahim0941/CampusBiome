@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,27 +18,28 @@ import com.example.campusbiome.studyGroups.models.StudySession;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class ScheduleSessionFragment extends Fragment {
 
-    // ── Argument keys ────────────────────────────────────────────────────────
     public static final String ARG_GROUP_ID   = "groupId";
     public static final String ARG_GROUP_NAME = "groupName";
 
-    // ── Views ────────────────────────────────────────────────────────────────
     private TextInputEditText etTitle, etDate, etTime, etLocation;
-    private MaterialButton    btnSchedule;
+    private TextInputLayout layoutTitle, layoutDate, layoutTime, layoutLocation;
+    private MaterialButton btnSchedule;
 
-    // ── Data ─────────────────────────────────────────────────────────────────
     private String groupId;
     private String groupName;
 
-    // ── Factory method ───────────────────────────────────────────────────────
     public static ScheduleSessionFragment newInstance(String groupId, String groupName) {
         ScheduleSessionFragment f = new ScheduleSessionFragment();
         Bundle args = new Bundle();
@@ -47,139 +49,158 @@ public class ScheduleSessionFragment extends Fragment {
         return f;
     }
 
-    // ── Lifecycle ────────────────────────────────────────────────────────────
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_schedule_session, container, false);
 
         if (getArguments() != null) {
-            groupId   = getArguments().getString(ARG_GROUP_ID);
+            groupId = getArguments().getString(ARG_GROUP_ID);
             groupName = getArguments().getString(ARG_GROUP_NAME);
         }
 
-        // Toolbar
-        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v ->
-                requireActivity().getSupportFragmentManager().popBackStack());
-
-        // Group name banner
-        android.widget.TextView txtForGroup = view.findViewById(R.id.txtSessionForGroup);
-        if (txtForGroup != null && groupName != null) {
-            txtForGroup.setText("Scheduling for: " + groupName);
-        }
-
-        // Wire fields
-        etTitle    = view.findViewById(R.id.etSessionTitle);
-        etDate     = view.findViewById(R.id.etDate);
-        etTime     = view.findViewById(R.id.etTime);
-        etLocation = view.findViewById(R.id.etLocation);
-        btnSchedule = view.findViewById(R.id.btnSchedule);
-
-        // Date picker — opens when field is clicked
-        etDate.setOnClickListener(v -> showDatePicker());
-
-        // Also open picker when the end icon (calendar icon) is tapped
-        View dateLayout = view.findViewById(R.id.etDate);
-        if (dateLayout.getParent() instanceof com.google.android.material.textfield.TextInputLayout) {
-            ((com.google.android.material.textfield.TextInputLayout) dateLayout.getParent())
-                    .setEndIconOnClickListener(v -> showDatePicker());
-        }
-
-        // Time picker
-        etTime.setOnClickListener(v -> showTimePicker());
-
-        btnSchedule.setOnClickListener(v -> attemptSchedule());
+        initViews(view);
+        setupListeners();
 
         return view;
     }
 
-    // ── Date Picker ──────────────────────────────────────────────────────────
+    private void initViews(View view) {
+        // Toolbar
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        // Banner
+        TextView txtForGroup = view.findViewById(R.id.txtSessionForGroup);
+        if (groupName != null) txtForGroup.setText("Scheduling for: " + groupName);
+
+        // Layouts
+        layoutTitle = view.findViewById(R.id.layoutTitle);
+        layoutDate = view.findViewById(R.id.layoutDate);
+        layoutTime = view.findViewById(R.id.layoutTime);
+        layoutLocation = view.findViewById(R.id.layoutLocation);
+
+        // EditTexts
+        etTitle = view.findViewById(R.id.etSessionTitle);
+        etDate = view.findViewById(R.id.etDate);
+        etTime = view.findViewById(R.id.etTime);
+        etLocation = view.findViewById(R.id.etLocation);
+
+        btnSchedule = view.findViewById(R.id.btnSchedule);
+    }
+
+    private void setupListeners() {
+        // Show picker on click
+        etDate.setOnClickListener(v -> showDatePicker());
+        etTime.setOnClickListener(v -> showTimePicker());
+
+        // Show picker on icon click (Targeting the TextInputLayouts)
+        layoutDate.setEndIconOnClickListener(v -> showDatePicker());
+        layoutTime.setEndIconOnClickListener(v -> showTimePicker());
+
+        btnSchedule.setOnClickListener(v -> attemptSchedule());
+    }
+
     private void showDatePicker() {
         Calendar cal = Calendar.getInstance();
-        new DatePickerDialog(requireContext(),
-                (view, year, month, dayOfMonth) -> {
-                    // Format: "15 Jan 2025"
-                    String[] months = {"Jan","Feb","Mar","Apr","May","Jun",
-                            "Jul","Aug","Sep","Oct","Nov","Dec"};
-                    String formatted = String.format(Locale.getDefault(),
-                            "%02d %s %d", dayOfMonth, months[month], year);
-                    etDate.setText(formatted);
-                },
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-        ).show();
+        DatePickerDialog dialog = new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+
+            // Format: 12 May 2026
+            Calendar selectedCal = Calendar.getInstance();
+            selectedCal.set(year, month, dayOfMonth);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            etDate.setText(sdf.format(selectedCal.getTime()));
+
+            // Clear error if set
+            layoutDate.setError(null);
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+
+        dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        dialog.show();
     }
 
-    // ── Time Picker ──────────────────────────────────────────────────────────
     private void showTimePicker() {
         Calendar cal = Calendar.getInstance();
-        new TimePickerDialog(requireContext(),
-                (view, hourOfDay, minute) -> {
-                    // Format: "02:30 PM"
-                    String amPm = hourOfDay < 12 ? "AM" : "PM";
-                    int hour12  = hourOfDay % 12;
-                    if (hour12 == 0) hour12 = 12;
-                    String formatted = String.format(Locale.getDefault(),
-                            "%02d:%02d %s", hour12, minute, amPm);
-                    etTime.setText(formatted);
-                },
-                cal.get(Calendar.HOUR_OF_DAY),
-                cal.get(Calendar.MINUTE),
-                false
-        ).show();
+        new TimePickerDialog(requireContext(), (view, hourOfDay, minute) -> {
+
+            // University hours check: 08:30 - 18:30
+            int totalMinutes = (hourOfDay * 60) + minute;
+            int startLimit = (8 * 60) + 30;
+            int endLimit = (18 * 60) + 30;
+
+            if (totalMinutes < startLimit || totalMinutes > endLimit) {
+                Toast.makeText(getContext(), "Select time between 8:30 AM and 6:30 PM", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Check if selected time is in the past (only if date is today)
+            if (isDateToday(text(etDate))) {
+                Calendar selectedTime = Calendar.getInstance();
+                selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                selectedTime.set(Calendar.MINUTE, minute);
+
+                if (selectedTime.before(Calendar.getInstance())) {
+                    Toast.makeText(getContext(), "Cannot select past time", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            // Format: 02:30 PM
+            String amPm = (hourOfDay < 12) ? "AM" : "PM";
+            int hour12 = (hourOfDay % 12 == 0) ? 12 : hourOfDay % 12;
+            String formatted = String.format(Locale.getDefault(), "%02d:%02d %s", hour12, minute, amPm);
+
+            etTime.setText(formatted);
+            layoutTime.setError(null);
+
+        }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show();
     }
 
-    // ── Validation & Submit ──────────────────────────────────────────────────
+    private boolean isDateToday(String dateStr) {
+        if (dateStr.isEmpty()) return false;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            Date pickedDate = sdf.parse(dateStr);
+            Calendar pickedCal = Calendar.getInstance();
+            pickedCal.setTime(pickedDate);
+            Calendar now = Calendar.getInstance();
+            return pickedCal.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
+                    pickedCal.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
     private void attemptSchedule() {
-        String title    = text(etTitle);
-        String date     = text(etDate);
-        String time     = text(etTime);
+        String title = text(etTitle);
+        String date = text(etDate);
+        String time = text(etTime);
         String location = text(etLocation);
 
-        if (title.isEmpty()) {
-            etTitle.setError("Session title is required");
-            etTitle.requestFocus();
-            return;
-        }
-        if (date.isEmpty()) {
-            etDate.setError("Please select a date");
-            etDate.requestFocus();
-            return;
-        }
-        if (time.isEmpty()) {
-            etTime.setError("Please select a time");
-            etTime.requestFocus();
-            return;
-        }
-        if (location.isEmpty()) {
-            etLocation.setError("Location is required");
-            etLocation.requestFocus();
-            return;
-        }
+        layoutTitle.setError(null);
+        layoutDate.setError(null);
+        layoutTime.setError(null);
+        layoutLocation.setError(null);
+
+        if (title.isEmpty()) { layoutTitle.setError("Title required"); return; }
+        if (date.isEmpty()) { layoutDate.setError("Select date"); return; }
+        if (time.isEmpty()) { layoutTime.setError("Select time"); return; }
+        if (location.isEmpty()) { layoutLocation.setError("Location required"); return; }
 
         saveSession(title, date, time, location);
     }
 
     private void saveSession(String title, String date, String time, String location) {
-        // Sessions stored at: StudySessions/{groupId}/{sessionId}
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("StudySessions").child(groupId);
-
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("StudySessions").child(groupId);
         String sessionId = ref.push().getKey();
-        if (sessionId == null) {
-            Toast.makeText(getContext(), "Failed to create session ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
+
+        if (sessionId == null) return;
 
         StudySession session = new StudySession(title, date, time, location, groupId);
 
         btnSchedule.setEnabled(false);
-        btnSchedule.setText("Scheduling…");
+        btnSchedule.setText("Scheduling...");
 
         ref.child(sessionId).setValue(session)
                 .addOnSuccessListener(unused -> {
@@ -189,13 +210,11 @@ public class ScheduleSessionFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     btnSchedule.setEnabled(true);
                     btnSchedule.setText("Schedule Session");
-                    Toast.makeText(getContext(),
-                            "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private String text(TextInputEditText field) {
-        if (field == null || field.getText() == null) return "";
-        return field.getText().toString().trim();
+        return (field != null && field.getText() != null) ? field.getText().toString().trim() : "";
     }
 }
